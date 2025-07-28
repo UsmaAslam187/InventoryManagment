@@ -10,6 +10,7 @@ public class FlywayMigrationService {
     private final Flyway flyway;
 
     public FlywayMigrationService(DataSource dataSource) {
+        System.out.println("FlywayMigrationService: " + dataSource);
         this.flyway = Flyway.configure().dataSource(dataSource).load();
     }
 } 

@@ -2,7 +2,6 @@ package com.techfoot.stockspree.InboundAdaptors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import jakarta.validation.ConstraintViolationException;
 
 public class GlobalExceptionHandling {
