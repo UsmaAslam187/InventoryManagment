@@ -11,5 +11,8 @@ import lombok.NoArgsConstructor;
     private Integer id;
     private String name;
     private Double price;
-    private String description;
+    private String tax;
+    private String type;
+    private Integer salesAccount;
+    private Integer purchaseAccount;
 }

@@ -26,14 +26,18 @@ public class Adapter_CreateProductOA implements Port_CreateProductOP {
         String query = queries.getInsertProductQuery("stockspree");
         entityManager.createNativeQuery(query)
                 .setParameter("name", input.getName())
-                .setParameter("description", input.getDescription())
+                .setParameter("code", input.getCode())
+                .setParameter("tax", input.getTax())
+                .setParameter("type", input.getType())
+                .setParameter("salesAccount", input.getSalesAccount())
+                .setParameter("purchaseAccount", input.getPurchaseAccount())
                 .setParameter("price", input.getPrice())
                 .executeUpdate();
         
         // Get the last inserted ID
         Integer productId = getLastInsertedId(input.getName());
         
-        return new Output_CreateProductIA(productId, input.getName(), input.getPrice(), input.getDescription());
+        return new Output_CreateProductIA(productId, input.getName(), input.getPrice(), input.getTax(), input.getType(), input.getSalesAccount(), input.getPurchaseAccount());
     }
 
     @Transactional(readOnly = true)

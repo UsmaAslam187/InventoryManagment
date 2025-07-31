@@ -14,6 +14,15 @@ public class C_CreateProductHandler {
     private Store store;
 
     public Output_CreateProductIA createProduct(Input_CreateProductIA input) {
+
+        System.out.println("Creating product: " + input);
+        Product product = new Product();
+        product.setName(input.getName());
+        product.setCode(input.getCode());
+        product.setPrice(input.getPrice());
+        product.setTax(input.getTax());
+        product.setType(input.getType());
+        product.setSalesAccount(input.getSalesAccount());
         return store.product.createProduct(input);
     }
 }

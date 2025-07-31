@@ -1,14 +1,20 @@
 package com.techfoot.stockspree.OutboundAdaptors.Memory.Database.MariaDB.Migrations;
 
+import java.util.List;
+import java.util.Map;
+
 import javax.sql.DataSource;
 
 import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.jdbc.core.JdbcTemplate;
-import com.zaxxer.hikari.HikariDataSource;
+import org.springframework.stereotype.Service;
 
 import com.techfoot.stockspree.OutboundAdaptors.Configurations.TechfootServicesConfig;
+import com.techfoot.stockspree.OutboundPort.RedisPorts.Q_GetAllWorkspaces.*;
+import com.zaxxer.hikari.HikariDataSource;
 
 @Service
 public class FlywayMigrationService {
@@ -17,25 +23,25 @@ public class FlywayMigrationService {
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
-    // private Port_GetAllWorkspacesOP getAllWorkspacesOutPort;
+    private Port_GetAllWorkspacesOP getAllWorkspacesOutPort;
 
     private TechfootServicesConfig.DbService config;
 
     public FlywayMigrationService(){
-        config = new TechfootServicesConfig().DbService();
+        config = new TechfootServicesConfig().DbService();  
     }
 
-    //  @EventListener(ApplicationReadyEvent.class)
-    // public void runFlywayMigrations() {
-    //     List<Map<String, String>> workspaceList = getAllWorkspacesOutPort.getAllWorkspaces();
+     @EventListener(ApplicationReadyEvent.class)
+    public void runFlywayMigrations() {
+        List<Map<String, String>> workspaceList = getAllWorkspacesOutPort.getAllWorkspaces();
 
-    //     for (Map<String, String> workspaceEntry : workspaceList) {
-    //         String workspace = workspaceEntry.get("workspace");
+        for (Map<String, String> workspaceEntry : workspaceList) {
+            String workspace = workspaceEntry.get("workspace");
 
-    //         System.out.println("Running migrations for workspace: " + workspace);
-    //         runMigrationForWorkspace(workspace);
-    //     }
-    // }
+            System.out.println("Running migrations for workspace: " + workspace);
+            runMigrationForWorkspace(workspace);
+        }
+    }
 
 
      public void runFlywayMigrationsForWorkspace(String workspace) {
