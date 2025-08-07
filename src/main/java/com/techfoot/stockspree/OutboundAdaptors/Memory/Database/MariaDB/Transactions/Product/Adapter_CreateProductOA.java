@@ -1,13 +1,17 @@
-package com.techfoot.stockspree.OutboundAdaptors.Memory.Database.MariaDB.Transactions;
+package com.techfoot.stockspree.OutboundAdaptors.Memory.Database.MariaDB.Transactions.Product;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.techfoot.stockspree.InboundAdaptors.REST.C_CreateProduct.Input_CreateProductIA;
-import com.techfoot.stockspree.InboundAdaptors.REST.C_CreateProduct.Output_CreateProductIA;
+import com.techfoot.stockspree.InboundAdaptors.Configurations.WorkspaceContext;
 import com.techfoot.stockspree.OutboundAdaptors.Memory.Database.MariaDB.Queries.Queries;
-import com.techfoot.stockspree.OutboundPort.Persistent.ProductPorts.Port_CreateProductOP;
+import com.techfoot.stockspree.OutboundPort.Persistent.ProductPorts.CreateProductOP.Input_CreateProductOP;
+import com.techfoot.stockspree.OutboundPort.Persistent.ProductPorts.CreateProductOP.Output_CreateProductOP;
+import com.techfoot.stockspree.OutboundPort.Persistent.ProductPorts.CreateProductOP.Port_CreateProductOP;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -22,8 +26,10 @@ public class Adapter_CreateProductOA implements Port_CreateProductOP {
 
     @Override
     @Transactional
-    public Output_CreateProductIA createProduct(Input_CreateProductIA input) {
-        String query = queries.getInsertProductQuery("stockspree");
+    public Output_CreateProductOP createProduct(Input_CreateProductOP input) {
+
+        try {
+               String query = queries.getInsertProductQuery(WorkspaceContext.getCurrentDatabase());
         entityManager.createNativeQuery(query)
                 .setParameter("name", input.getName())
                 .setParameter("code", input.getCode())
@@ -37,12 +43,23 @@ public class Adapter_CreateProductOA implements Port_CreateProductOP {
         // Get the last inserted ID
         Integer productId = getLastInsertedId(input.getName());
         
-        return new Output_CreateProductIA(productId, input.getName(), input.getPrice(), input.getTax(), input.getType(), input.getSalesAccount(), input.getPurchaseAccount());
+        return new Output_CreateProductOP(
+            true, 
+            "Product created successfully", 
+            new ArrayList<>()
+        );
+        } catch (Exception e) {
+            return new Output_CreateProductOP(
+                false, 
+                "Product creation failed", 
+                new ArrayList<>(Arrays.asList(e.getMessage()))
+            );
+        }
     }
 
     @Transactional(readOnly = true)
     public Integer getLastInsertedId(String productName) {
-        String query = queries.getSelectProductIdByNameQuery("stockspree");
+        String query = queries.getSelectProductIdByNameQuery(WorkspaceContext.getCurrentDatabase(), productName);
         return (Integer) entityManager.createNativeQuery(query)
                 .setParameter("name", productName)
                 .getSingleResult();

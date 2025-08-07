@@ -6,11 +6,11 @@ import org.springframework.stereotype.Service;
 public class Queries {
     public String getInsertProductQuery(String database) {
         return "INSERT INTO " + database + ".Product " +
-                "(name, description, price) VALUES " +
-                "(:name, :description, :price)";
+                "(name, code, price, tax, type, sales_account, purchase_account) VALUES " +
+                "(:name, :code, :price, :tax, :type, :salesAccount, :purchaseAccount)";
     }
 
-    public String getSelectProductIdByNameQuery(String database) {
+    public String getSelectProductIdByNameQuery(String database, String name) {
         return "SELECT id FROM " + database + ".Product WHERE name = :name";
     }
 }

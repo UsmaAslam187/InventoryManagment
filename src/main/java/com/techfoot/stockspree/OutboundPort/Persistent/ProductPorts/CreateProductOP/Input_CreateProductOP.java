@@ -1,4 +1,4 @@
-package com.techfoot.stockspree.InboundAdaptors.REST.C_CreateProduct;
+package com.techfoot.stockspree.OutboundPort.Persistent.ProductPorts.CreateProductOP;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Input_CreateProductIA {
+public class Input_CreateProductOP {
     private String name;
     private String code;
     private Double price;
@@ -15,4 +15,4 @@ public class Input_CreateProductIA {
     private String type;
     private Integer salesAccount;
     private Integer purchaseAccount;
-}
+} 
