@@ -1,25 +1,22 @@
 package com.techfoot.stockspree.InboundAdaptors.REST.Product.C_CreateProduct;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import com.techfoot.stockspree.Business.DataContracts.CreateProduct.Input_IP;
+import com.techfoot.stockspree.Business.DataContracts.CreateProduct.Output_IP;
 import com.techfoot.stockspree.InboundAdaptors.Configurations.CustomHttpRequestWrapper;
+import com.techfoot.stockspree.InboundAdaptors.Configurations.SharedCustomDeserializer;
 import com.techfoot.stockspree.InboundPort.Product.C_CreateProductHandler;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validator;
 
 @RestController
 @RequestMapping("/billspree/products/create-product")
@@ -32,31 +29,34 @@ public class Adapter_CreateProductIA {
     private ObjectMapper objectMapper;
     
     @Autowired
-    private Validator validator;
+    private SharedCustomDeserializer sharedDeserializer;
 
     @PostMapping
     public Output_CreateProductIA createProduct(HttpServletRequest request) throws IOException {
         CustomHttpRequestWrapper wrappedRequest = (CustomHttpRequestWrapper) request.getAttribute("wrappedRequest");
-        String requestBody = wrappedRequest.getBody();
-        System.out.println("BODY -->" + requestBody);
+        String requestBody = wrappedRequest != null ? wrappedRequest.getBody() : null;
 
-        // Option 1: Use the static validateRequest method
-        List<String> validationErrors = Input_CreateProductIA.validateRequest(requestBody);
-        if (!validationErrors.isEmpty()) {
-            return new Output_CreateProductIA(
-                    false,
-                    "Product validation failed",
-                    validationErrors);
+        // Use shared deserializer to handle all validation errors
+        SharedCustomDeserializer.DeserializationResult<Input_CreateProductIA> deserializationResult = 
+            sharedDeserializer.deserialize(requestBody, Input_CreateProductIA.class, objectMapper);
+        
+        // Check if deserialization had errors
+        if (deserializationResult.hasErrors() || !deserializationResult.getValidationErrors().isEmpty()) {
+            return new Output_CreateProductIA(false, "Input validation failed", deserializationResult.getValidationErrors());
         }
+        
+        Input_CreateProductIA input = deserializationResult.getResult();
+        
+        // // Additional validation if needed
+        // List<String> validationErrors = input.validate();
+        // if (!validationErrors.isEmpty()) {
+        //     return new Output_CreateProductIA(false, "Product validation failed", validationErrors);
+        // }
 
-        // Configure ObjectMapper to ignore unknown properties
-        objectMapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-        Input_CreateProductIA input = objectMapper.readValue(
-                requestBody,
-                Input_CreateProductIA.class);
-
-        System.out.println("input " + input.toString());
-        return handler.createProduct(input);
+        System.out.println("input " + input);
+        Input_IP inputIP = new Input_IP();
+        inputIP.setProducts(input.getProducts().stream().map(product -> new Input_IP.Product(product.getName(), product.getCode(), product.getPrice(), product.getTax(), product.getType(), product.getSalesAccount(), product.getPurchaseAccount())).collect(Collectors.toList()));
+        Output_IP outputIP = handler.createProduct(inputIP);
+        return new Output_CreateProductIA(outputIP.getSuccess(), outputIP.getMessage(), outputIP.getErrors());
     }
 }

@@ -28,14 +28,14 @@ public class C_CreateDatabaseHandler {
             // jdbcTemplate.execute(disableFKChecks);
 
             // Step 2: Create the database
-            String createDB = "CREATE DATABASE IF NOT EXISTS techfoot_stockspree_db_" + dbName
+            String createDB = "CREATE DATABASE IF NOT EXISTS techfoot_stock_db_" + dbName
                     + " DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;";
             jdbcTemplate.execute(createDB);
 
             migrator.runMigrationForWorkspace(dbName);
 
             // // Step 3: Use the new database
-            // String useDB = "USE techfoot_stockspree_db_" + dbName + ";";
+            // String useDB = "USE techfoot_stock_db_" + dbName + ";";
             // jdbcTemplate.execute(useDB);
 
             // // Step 4: Create the Project table

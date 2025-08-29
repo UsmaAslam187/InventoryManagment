@@ -27,7 +27,7 @@ public class DataSourceConfig {
     private DataSource createDefaultDataSource() {
         HikariDataSource dataSource = DataSourceBuilder.create()
                 .type(HikariDataSource.class)
-                .url(config.getHostName() + "techfoot_stockspree_db_template")
+                .url(config.getHostName() + "techfoot_stock_db_template")
                 .username(config.getUser())
                 .password(config.getPassword())
                 .build();

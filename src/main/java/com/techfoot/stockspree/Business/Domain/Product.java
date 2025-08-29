@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.techfoot.stockspree.InboundAdaptors.REST.Product.C_CreateProduct.Input_CreateProductIA;
+import com.techfoot.stockspree.Business.DataContracts.CreateProduct.Input_IP;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -18,9 +18,11 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
+@Getter
 public class Product extends DomainAggregate {
 
     @NotBlank(message = "Name is required")
@@ -182,7 +184,7 @@ public class Product extends DomainAggregate {
         }
     }
 
-    public List<String> setSimpleAttributesAndValidatePolicy(Input_CreateProductIA input) {
+    public List<String> setSimpleAttributesAndValidatePolicy(Input_IP.Product input) {
         List<String> errors = new ArrayList<>();
         
         try {

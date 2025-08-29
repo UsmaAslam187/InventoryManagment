@@ -13,5 +13,5 @@ public class Input_CreateDbIA {
     private String tenantEmail;
     private Integer tenantID;
 
-    public String getDBName() { return "techfoot_stockspree_db_" + subdomain; }
+    public String getDBName() { return "techfoot_stock_db_" + subdomain; }
 }

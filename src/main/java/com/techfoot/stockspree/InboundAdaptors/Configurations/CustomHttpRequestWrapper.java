@@ -18,16 +18,19 @@ public class CustomHttpRequestWrapper extends HttpServletRequestWrapper {
 
     public CustomHttpRequestWrapper(HttpServletRequest request) throws IOException {
         super(request);
+        System.out.println("Request: " + request);
         StringBuilder stringBuilder = new StringBuilder();
         InputStream inputStream = request.getInputStream();
         if (inputStream != null) {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+            BufferedReader bufferedReader = new BufferedReader(
+                    new InputStreamReader(inputStream, StandardCharsets.UTF_8));
             char[] buffer = new char[128];
             int bytesRead;
             while ((bytesRead = bufferedReader.read(buffer)) > 0) {
                 stringBuilder.append(buffer, 0, bytesRead);
             }
         }
+        
         this.body = stringBuilder.toString();
     }
 

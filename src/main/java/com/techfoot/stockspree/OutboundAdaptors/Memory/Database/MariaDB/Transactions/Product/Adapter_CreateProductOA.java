@@ -27,27 +27,31 @@ public class Adapter_CreateProductOA implements Port_CreateProductOP {
     @Override
     @Transactional
     public Output_CreateProductOP createProduct(Input_CreateProductOP input) {
-
         try {
-               String query = queries.getInsertProductQuery(WorkspaceContext.getCurrentDatabase());
-        entityManager.createNativeQuery(query)
-                .setParameter("name", input.getName())
-                .setParameter("code", input.getCode())
-                .setParameter("tax", input.getTax())
-                .setParameter("type", input.getType())
-                .setParameter("salesAccount", input.getSalesAccount())
-                .setParameter("purchaseAccount", input.getPurchaseAccount())
-                .setParameter("price", input.getPrice())
-                .executeUpdate();
-        
-        // Get the last inserted ID
-        Integer productId = getLastInsertedId(input.getName());
-        
-        return new Output_CreateProductOP(
-            true, 
-            "Product created successfully", 
-            new ArrayList<>()
-        );
+            // Validate input
+            if (input == null) {
+                return new Output_CreateProductOP(
+                        false,
+                        "Input is null",
+                        new ArrayList<>(Arrays.asList("Product input cannot be null")));
+            }
+            String query = queries.getInsertProductQuery(WorkspaceContext.getCurrentDatabase());
+            entityManager.createNativeQuery(query)
+                    .setParameter("name", input.getName())
+                    .setParameter("code", input.getCode())
+                    .setParameter("tax", input.getTax())
+                    .setParameter("type", input.getType())
+                    .setParameter("salesAccount", input.getSalesAccount())
+                    .setParameter("purchaseAccount", input.getPurchaseAccount())
+                    .setParameter("price", input.getPrice())
+                    .executeUpdate();
+            
+            return new Output_CreateProductOP(
+                true, 
+                "Product created successfully", 
+                new ArrayList<>()
+            );
+            
         } catch (Exception e) {
             return new Output_CreateProductOP(
                 false, 
@@ -55,13 +59,5 @@ public class Adapter_CreateProductOA implements Port_CreateProductOP {
                 new ArrayList<>(Arrays.asList(e.getMessage()))
             );
         }
-    }
-
-    @Transactional(readOnly = true)
-    public Integer getLastInsertedId(String productName) {
-        String query = queries.getSelectProductIdByNameQuery(WorkspaceContext.getCurrentDatabase(), productName);
-        return (Integer) entityManager.createNativeQuery(query)
-                .setParameter("name", productName)
-                .getSingleResult();
     }
 }    

@@ -50,7 +50,7 @@ public class FlywayMigrationService {
     }
      public void runMigrationForWorkspace(String workspace) {
         try {
-            String createDB = "CREATE DATABASE IF NOT EXISTS techfoot_stockspree_db_" + workspace + " DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;";
+            String createDB = "CREATE DATABASE IF NOT EXISTS techfoot_stock_db_" + workspace + " DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;";
             jdbcTemplate.execute(createDB);
             // Configure Flyway with the existing single data source and specify migration location
             DataSource workspaceDataSource = createWorkspaceDataSource(workspace);
@@ -69,7 +69,7 @@ public class FlywayMigrationService {
     }
     private DataSource createWorkspaceDataSource(String workspace) {
         // Create a new DataSource for the specific workspace database
-        String databaseUrl = config.getHostName() + "techfoot_stockspree_db_" + workspace;
+        String databaseUrl = config.getHostName() + "techfoot_stock_db_" + workspace;
 
         HikariDataSource dataSource = new HikariDataSource();
         dataSource.setJdbcUrl(databaseUrl);

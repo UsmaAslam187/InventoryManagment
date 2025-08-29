@@ -1,15 +1,19 @@
-package com.techfoot.stockspree.OutboundPort.Persistent.ProductPorts.CreateProductOP;
-
+package com.techfoot.stockspree.Business.DataContracts.CreateProduct;
 import java.util.List;
-
 import lombok.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Setter
 @Getter
-public class Input_CreateProductOP {
+@Setter
+public class Input_IP {
+    private List<Product> products;
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class Product {
         private String name;
         private String code;
         private Double price;
@@ -17,4 +21,7 @@ public class Input_CreateProductOP {
         private String type;
         private Integer salesAccount;
         private Integer purchaseAccount;
-} 
+    }
+}
+
+

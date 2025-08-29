@@ -14,9 +14,9 @@ public class WorkspaceContext {
 
     public static String getCurrentDatabase() {
         if(currentWorkspace.get()!=null){
-            return "techfoot_stockspree_db_" + currentWorkspace.get();
+            return "techfoot_stock_db_" + currentWorkspace.get();
         } else {
-            return "techfoot_stockspree_db_test";
+            return "techfoot_stock_db_test";
         }
     }
 
