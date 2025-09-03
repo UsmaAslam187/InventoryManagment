@@ -1,4 +1,4 @@
-package com.techfoot.stockspree.InboundAdaptors.REST.C_CreateDatabase;
+package com.techfoot.stockspree.InboundAdaptors.REST.Database;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

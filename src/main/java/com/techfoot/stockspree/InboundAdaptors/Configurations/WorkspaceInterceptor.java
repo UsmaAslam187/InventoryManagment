@@ -1,14 +1,14 @@
 package com.techfoot.stockspree.InboundAdaptors.Configurations;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import java.util.Map;
 
 @Component
 public class WorkspaceInterceptor implements HandlerInterceptor {
@@ -24,11 +24,21 @@ public class WorkspaceInterceptor implements HandlerInterceptor {
         System.out.println("Request URL: " + request.getRequestURL());
         System.out.println("Request Method: " + request.getMethod());
         
+        // Store request context for later use
+        RequestContext.setCurrentRequest(wrappedRequest);
+        
         if ("POST".equalsIgnoreCase(wrappedRequest.getMethod())) {
             if (requestBody != null && !requestBody.isEmpty()) {
                 try {
                     Map<String, Object> requestBodyMap = objectMapper.readValue(requestBody, Map.class);
                     String workspace = (String) requestBodyMap.get("workspace");
+                    String action = (String) requestBodyMap.get("action");
+                    
+                    // Store action in context for routing
+                    if (action != null) {
+                        RequestContext.setCurrentAction(action);
+                        System.out.println("Action detected: " + action);
+                    }
                     
                     // Check if workspace is in the root level
                     if (workspace == null && requestBodyMap.get("data") instanceof Map) {
@@ -70,5 +80,6 @@ public class WorkspaceInterceptor implements HandlerInterceptor {
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         // Clean up if necessary
         WorkspaceContext.clear();
+        RequestContext.clear(); // Clear the action context
     }
 }

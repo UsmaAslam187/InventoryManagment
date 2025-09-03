@@ -1,4 +1,4 @@
-package com.techfoot.stockspree.InboundAdaptors.REST.C_CreateDatabase;
+package com.techfoot.stockspree.InboundAdaptors.REST.Database;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

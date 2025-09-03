@@ -6,8 +6,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.techfoot.stockspree.InboundAdaptors.REST.C_CreateDatabase.Input_CreateDbIA;
-import com.techfoot.stockspree.InboundAdaptors.REST.C_CreateDatabase.Output_CreateDbIA;
+import com.techfoot.stockspree.InboundAdaptors.REST.Database.Input_CreateDbIA;
+import com.techfoot.stockspree.InboundAdaptors.REST.Database.Output_CreateDbIA;
 import com.techfoot.stockspree.OutboundAdaptors.Memory.Database.MariaDB.Migrations.FlywayMigrationService;
 
 @Service

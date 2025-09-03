@@ -30,42 +30,46 @@ public class Products {
         try {
             List<String> errors = new ArrayList<>();
             boolean overallSuccess = true;
-             
-        for (Input_IP.Product product : input.getProducts()) {
-            if (product.getSalesAccount() != null) {
-                Output_GetAccountsOP accounts = port_GetAccountsOP
-                        .getAccounts(new Input_GetAccountsOP(product.getSalesAccount()));
-                if (!accounts.getSuccess()) {
-                    errors.add("Sales account not found");
+
+            for (Input_IP.Product product : input.getProducts()) {
+                if (product.getSalesAccount() != null) {
+                    Output_GetAccountsOP accounts = port_GetAccountsOP
+                            .getAccounts(new Input_GetAccountsOP(product.getSalesAccount()));
+                    if (!accounts.getSuccess()) {
+                        errors.add("Sales account not found");
+                        overallSuccess = false;
+                    }
+                }
+                if (product.getPurchaseAccount() != null) {
+                    Output_GetAccountsOP accounts = port_GetAccountsOP
+                            .getAccounts(new Input_GetAccountsOP(product.getPurchaseAccount()));
+                    if (!accounts.getSuccess()) {
+                        errors.add("Purchase account not found");
+                        overallSuccess = false;
+                    }
+                }
+                Input_CreateProductOP outboundInput = new Input_CreateProductOP();
+                outboundInput.setName(product.getName());
+                outboundInput.setCode(product.getCode());
+                outboundInput.setPrice(product.getPrice());
+                outboundInput.setTax(product.getTax());
+                outboundInput.setType(product.getType());
+                outboundInput.setSalesAccount(product.getSalesAccount());
+                outboundInput.setPurchaseAccount(product.getPurchaseAccount());
+                Output_CreateProductOP output = port_CreateProductOP.createProduct(outboundInput);
+                if (!output.getSuccess()) {
+                    errors.add(output.getMessage());
                     overallSuccess = false;
                 }
             }
-            if (product.getPurchaseAccount() != null) {
-                Output_GetAccountsOP accounts = port_GetAccountsOP
-                        .getAccounts(new Input_GetAccountsOP(product.getPurchaseAccount()));
-                if (!accounts.getSuccess()) {
-                    errors.add("Purchase account not found");
-                    overallSuccess = false;
-                }
-            }
-            Input_CreateProductOP outboundInput = new Input_CreateProductOP();  
-            outboundInput.setName(product.getName());
-            outboundInput.setCode(product.getCode());
-            outboundInput.setPrice(product.getPrice());
-            outboundInput.setTax(product.getTax());
-            outboundInput.setType(product.getType());
-            outboundInput.setSalesAccount(product.getSalesAccount());
-            outboundInput.setPurchaseAccount(product.getPurchaseAccount());
-            Output_CreateProductOP output = port_CreateProductOP.createProduct(outboundInput);
-            if (!output.getSuccess()) {
-                errors.add(output.getMessage());
-                overallSuccess = false;
-            }
-        }   
-        return new Output_IP(overallSuccess, errors.isEmpty() ? null : errors.toString(), null);
+            return new Output_IP(overallSuccess, errors.isEmpty() ? null : errors.toString(), null);
         } catch (Exception e) {
             return new Output_IP(false, e.getMessage(), null);
         }
-       
+
     }
+
+    // @Transactional
+    // public Output_IP getProduct(Input_IP input) {
+    // }
 }
