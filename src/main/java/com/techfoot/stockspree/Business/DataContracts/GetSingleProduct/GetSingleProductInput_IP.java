@@ -11,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Input_IP {
+public class GetSingleProductInput_IP {
     private String code;
     private String name;
 }

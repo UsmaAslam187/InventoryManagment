@@ -18,18 +18,14 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("/billspree/products/get-products")
 public class Adapter_GetProductsIA {
-    
     @Autowired
     private GetSingleProductIA singleProductController;
-    
+
     @Autowired
     private GetAllProductsIA allProductsController;
-
-    @PostMapping("/")
+    @PostMapping
     public Object getProducts(HttpServletRequest request) {
-        // Get the action from the RequestContext set by the interceptor
         String action = RequestContext.getCurrentAction();
-        
         if (action == null) {
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("success", false);
@@ -38,12 +34,13 @@ public class Adapter_GetProductsIA {
             errorResponse.put("products", null);
             return errorResponse;
         }
-        
         switch (action) {
             case "Retrieve Product" -> {
+                System.out.println("Retrieve Product");
                 return singleProductController.getSingleProduct(request);
             }
             case "Retrieve Products" -> {
+                System.out.println("Retrieve Products");
                 return allProductsController.getAllProducts(request);
             }
             default -> {

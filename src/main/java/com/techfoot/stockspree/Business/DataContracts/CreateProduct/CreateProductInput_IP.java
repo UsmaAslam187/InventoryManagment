@@ -7,7 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Input_IP {
+public class CreateProductInput_IP {
     private List<Product> products;
     @Data
     @AllArgsConstructor

@@ -1,4 +1,4 @@
-package com.techfoot.stockspree.Business.DataContracts.GetAllProducts;
+package com.techfoot.stockspree.OutboundPort.Persistent.ProductPorts.GetAllProductsOP;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,11 +11,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Input_IP {
-    
+public class Input_GetAllProductsOP {
     private Page page;
     private String searchedValue;
-    
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor

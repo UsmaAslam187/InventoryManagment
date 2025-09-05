@@ -25,10 +25,11 @@ public class Input_GetAllProductsIA {
     @JsonProperty("apiVersion")
     private String apiVersion;
 
-    @JsonProperty("page")
+    @JsonProperty(value = "page", required = true)
+
     private Page page;
 
-    @JsonProperty("searchedValue")
+    @JsonProperty(value = "searchedValue", required = true)
     private String searchedValue;
 
     @Data
@@ -40,7 +41,7 @@ public class Input_GetAllProductsIA {
     public static class Page {
         @JsonProperty("size")
         private Integer size;
-       
+
         @JsonProperty("totalElements")
         private Integer totalElements;
 
@@ -56,4 +57,4 @@ public class Input_GetAllProductsIA {
         @JsonProperty("csvExport")
         private Boolean csvExport;
     }
-} 
+}

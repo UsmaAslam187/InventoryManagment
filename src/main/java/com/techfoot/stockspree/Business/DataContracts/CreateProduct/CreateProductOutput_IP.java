@@ -5,7 +5,7 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Output_IP {
+public class CreateProductOutput_IP {
     private Boolean success;
     private String message;
     private List<String> errors;

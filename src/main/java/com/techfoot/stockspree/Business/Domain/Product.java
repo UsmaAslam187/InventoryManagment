@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.techfoot.stockspree.Business.DataContracts.CreateProduct.Input_IP;
+import com.techfoot.stockspree.Business.DataContracts.CreateProduct.CreateProductInput_IP;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -184,7 +184,7 @@ public class Product extends DomainAggregate {
         }
     }
 
-    public List<String> setSimpleAttributesAndValidatePolicy(Input_IP.Product input) {
+    public List<String> setSimpleAttributesAndValidatePolicy(CreateProductInput_IP.Product input) {
         List<String> errors = new ArrayList<>();
         
         try {

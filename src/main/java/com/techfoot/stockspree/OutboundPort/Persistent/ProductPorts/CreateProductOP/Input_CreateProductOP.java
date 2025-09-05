@@ -17,4 +17,4 @@ public class Input_CreateProductOP {
         private String type;
         private Integer salesAccount;
         private Integer purchaseAccount;
-} 
+}   

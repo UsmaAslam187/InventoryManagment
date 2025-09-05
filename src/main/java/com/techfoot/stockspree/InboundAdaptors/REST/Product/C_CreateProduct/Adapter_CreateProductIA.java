@@ -5,13 +5,12 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.techfoot.stockspree.Business.DataContracts.CreateProduct.Input_IP;
-import com.techfoot.stockspree.Business.DataContracts.CreateProduct.Output_IP;
+import com.techfoot.stockspree.Business.DataContracts.CreateProduct.CreateProductInput_IP;
+import com.techfoot.stockspree.Business.DataContracts.CreateProduct.CreateProductOutput_IP;
 import com.techfoot.stockspree.InboundAdaptors.Configurations.CustomHttpRequestWrapper;
 import com.techfoot.stockspree.InboundAdaptors.Configurations.SharedCustomDeserializer;
 import com.techfoot.stockspree.InboundPort.Product.C_CreateProductHandler;
@@ -54,9 +53,9 @@ public class Adapter_CreateProductIA {
         // }
 
         System.out.println("input " + input);
-        Input_IP inputIP = new Input_IP();
-        inputIP.setProducts(input.getProducts().stream().map(product -> new Input_IP.Product(product.getName(), product.getCode(), product.getPrice(), product.getTax(), product.getType(), product.getSalesAccount(), product.getPurchaseAccount())).collect(Collectors.toList()));
-        Output_IP outputIP = handler.createProduct(inputIP);
+        CreateProductInput_IP inputIP = new CreateProductInput_IP();
+        inputIP.setProducts(input.getProducts().stream().map(product -> new CreateProductInput_IP.Product(product.getName(), product.getCode(), product.getPrice(), product.getTax(), product.getType(), product.getSalesAccount(), product.getPurchaseAccount())).collect(Collectors.toList()));
+        CreateProductOutput_IP outputIP = handler.createProduct(inputIP);
         return new Output_CreateProductIA(outputIP.getSuccess(), outputIP.getMessage(), outputIP.getErrors());
     }
 }

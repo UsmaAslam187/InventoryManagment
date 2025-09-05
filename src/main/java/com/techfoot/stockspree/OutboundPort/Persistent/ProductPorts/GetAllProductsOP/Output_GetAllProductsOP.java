@@ -1,4 +1,4 @@
-package com.techfoot.stockspree.OutboundPort.Persistent.ProductPorts.GetSingleProductOP;
+package com.techfoot.stockspree.OutboundPort.Persistent.ProductPorts.GetAllProductsOP;
 
 import java.util.List;
 
@@ -6,24 +6,21 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Setter
-public class Output_GetSingleProductOP {
+public class Output_GetAllProductsOP {
     private Boolean success;
     private String message;
     private List<String> errors;
-    private Product product;
+    private List<Product> products;
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
-    @Setter
     public static class Product {
         private String code;
         private String name;

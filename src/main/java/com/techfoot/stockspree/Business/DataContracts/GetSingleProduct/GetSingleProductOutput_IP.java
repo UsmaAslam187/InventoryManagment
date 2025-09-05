@@ -12,12 +12,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Output_IP {
+public class GetSingleProductOutput_IP {
     private Boolean success;
     private String message;
     private List<String> errors;
     private Product product;
-    private List<Product> products; // Added for multiple products
 
     @Data
     @AllArgsConstructor
