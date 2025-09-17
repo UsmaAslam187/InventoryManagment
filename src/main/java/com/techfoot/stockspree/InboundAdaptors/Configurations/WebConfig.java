@@ -15,7 +15,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(workspaceInterceptor)
                 .addPathPatterns(
-                    "/billspree/**"  // Add stockspree endpoints
+                        "/stockspree/**" // Add stockspree endpoints
                 );
     }
 }

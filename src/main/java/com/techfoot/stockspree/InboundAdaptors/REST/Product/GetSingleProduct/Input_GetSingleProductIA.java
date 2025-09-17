@@ -31,4 +31,7 @@ public class Input_GetSingleProductIA {
     @NotBlank(message = "Product code cannot be null or empty")
     @JsonProperty("code")
     private String code;
+
+    @JsonProperty("name")
+    private String name;    
 } 

@@ -1,4 +1,4 @@
-package com.techfoot.stockspree.InboundAdaptors.REST.Product.C_CreateProduct;
+package com.techfoot.stockspree.InboundAdaptors.REST.Product.CreateSingleProduct;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,11 +6,6 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
@@ -32,23 +27,21 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Valid
 @Getter
-public class Input_CreateProductIA {
+public class Input_CreateSingleProductIA {
 
     @JsonProperty("products")
     @NotNull(message = "Products is required")
     @Size(min = 1, message = "At least one product is required")
     @Valid
     private List<Product> products;
-    @JsonProperty("operation")
-    private String operation;
 
     public List<String> validate() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
-        Set<ConstraintViolation<Input_CreateProductIA>> violations = validator.validate(this);
+        Set<ConstraintViolation<Input_CreateSingleProductIA>> violations = validator.validate(this);
 
         List<String> errors = new ArrayList<>();
-        for (ConstraintViolation<Input_CreateProductIA> violation : violations) {
+        for (ConstraintViolation<Input_CreateSingleProductIA> violation : violations) {
             errors.add("Field '" + violation.getPropertyPath() + "': " + violation.getMessage());
         }
 

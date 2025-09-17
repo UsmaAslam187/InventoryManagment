@@ -21,7 +21,7 @@ import com.techfoot.stockspree.OutboundPort.RPC.REST.AccountingPorts.Q_GetAccoun
 
 @Service
 @Profile("prod")
-public class Adapter_GetAccountsOA_Prod implements Port_GetAccountsOP{
+public class Adapter_GetAccountsOA_Prod implements Port_GetAccountsOP {
     private TechfootServicesConfig.AccountingService service;
 
     @Autowired
@@ -30,6 +30,7 @@ public class Adapter_GetAccountsOA_Prod implements Port_GetAccountsOP{
     public Adapter_GetAccountsOA_Prod() {
         service = new TechfootServicesConfig().accountingService();
     }
+
     private final RestTemplate restTemplate = new RestTemplate();
 
     public Output_GetAccountsOP getAccounts(Input_GetAccountsOP input) throws Exception {
@@ -39,7 +40,8 @@ public class Adapter_GetAccountsOA_Prod implements Port_GetAccountsOP{
         Request req = new Request(WorkspaceContext.getCurrentWorkspace(), "", input.getAccountID());
 
         HttpEntity<Request> entity = new HttpEntity<>(req, headers);
-        String url = String.format("http://%s:%d/accspree/COA/get-accounts", service.getHostName(), service.getPortNumber());
+        String url = String.format("http://%s:%d/accspree/COA/get-accounts", service.getHostName(),
+                service.getPortNumber());
 
         Response response = new Response();
         try {
@@ -47,24 +49,24 @@ public class Adapter_GetAccountsOA_Prod implements Port_GetAccountsOP{
             try {
                 response = objectMapper.readValue(apiResponse.getBody(), Response.class);
             } catch (Exception jsonException) {
-                response = new Response(false, "Failed to parse API response: " + jsonException.getMessage(), 
-                    apiResponse.getStatusCodeValue(), null, apiResponse.getBody());
+                response = new Response(false, "Failed to parse API response: " + jsonException.getMessage(),
+                        apiResponse.getStatusCodeValue(), null, apiResponse.getBody());
             }
         } catch (HttpClientErrorException e) {
             try {
                 response = objectMapper.readValue(e.getResponseBodyAsString(), Response.class);
             } catch (Exception jsonException) {
-                response = new Response(false, e.getMessage(), e.getStatusCode().value(), null, e.getResponseBodyAsString());
+                response = new Response(false, e.getMessage(), e.getStatusCode().value(), null,
+                        e.getResponseBodyAsString());
             }
         } catch (Exception e) {
             response = new Response(false, e.getMessage(), 500, null, e.getMessage());
         }
 
-        if(response.isSuccess()){
-         return new Output_GetAccountsOP(true, response.getMessage(), response.getData());
+        if (response.isSuccess()) {
+            return new Output_GetAccountsOP(true, response.getMessage(), response.getData());
         } else {
             return new Output_GetAccountsOP(false, response.getMessage(), null);
         }
     }
 }
-

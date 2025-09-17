@@ -15,6 +15,7 @@ public class GetAllProductsInput_IP {
 
     private Page page;
     private String searchedValue;
+    private Boolean nameFlag;
 
     @Data
     @AllArgsConstructor

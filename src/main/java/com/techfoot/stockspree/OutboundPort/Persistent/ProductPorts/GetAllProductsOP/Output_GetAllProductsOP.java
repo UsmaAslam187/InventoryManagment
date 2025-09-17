@@ -16,7 +16,20 @@ public class Output_GetAllProductsOP {
     private String message;
     private List<String> errors;
     private List<Product> products;
+    private Page page;
 
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class Page {
+        private Integer size;
+        private Integer totalElements;
+        private Integer totalPages;
+        private Integer pageNumber;
+        private String searchedValue;
+        private Boolean csvExport;
+    }
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
@@ -24,7 +37,9 @@ public class Output_GetAllProductsOP {
     public static class Product {
         private String code;
         private String name;
-        private Integer price;
+        private Double price;
+        private String tax;
+        private String type;
         private Integer salesAccount;
         private Integer purchaseAccount;
     }

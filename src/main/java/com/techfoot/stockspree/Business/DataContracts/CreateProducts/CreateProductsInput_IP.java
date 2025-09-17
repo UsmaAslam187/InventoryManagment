@@ -1,4 +1,4 @@
-package com.techfoot.stockspree.Business.DataContracts.CreateProduct;
+package com.techfoot.stockspree.Business.DataContracts.CreateProducts;
 import java.util.List;
 import lombok.*;
 
@@ -7,7 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @Getter
 @Setter
-public class CreateProductInput_IP {
+public class CreateProductsInput_IP {
     private List<Product> products;
     @Data
     @AllArgsConstructor

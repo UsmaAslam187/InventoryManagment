@@ -14,6 +14,7 @@ import lombok.Setter;
 public class Input_GetAllProductsOP {
     private Page page;
     private String searchedValue;
+    private Boolean nameFlag;
 
     @Data
     @AllArgsConstructor

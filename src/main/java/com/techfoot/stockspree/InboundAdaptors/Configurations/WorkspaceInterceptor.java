@@ -1,10 +1,12 @@
 package com.techfoot.stockspree.InboundAdaptors.Configurations;
+
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,35 +19,50 @@ public class WorkspaceInterceptor implements HandlerInterceptor {
     private ObjectMapper objectMapper;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+            throws Exception {
         CustomHttpRequestWrapper wrappedRequest = new CustomHttpRequestWrapper(request);
         String requestBody = wrappedRequest.getBody();
         System.out.println("Request Body: " + requestBody);
         System.out.println("Request URL: " + request.getRequestURL());
         System.out.println("Request Method: " + request.getMethod());
-        
+
         // Store request context for later use
         RequestContext.setCurrentRequest(wrappedRequest);
-        
+
         if ("POST".equalsIgnoreCase(wrappedRequest.getMethod())) {
             if (requestBody != null && !requestBody.isEmpty()) {
                 try {
                     Map<String, Object> requestBodyMap = objectMapper.readValue(requestBody, Map.class);
                     String workspace = (String) requestBodyMap.get("workspace");
                     String action = (String) requestBodyMap.get("action");
-                    
-                    // Store action in context for routing
-                    if (action != null) {
-                        RequestContext.setCurrentAction(action);
-                        System.out.println("Action detected: " + action);
-                    }
-                    
+                    String method = (String) requestBodyMap.get("method");
+
                     // Check if workspace is in the root level
                     if (workspace == null && requestBodyMap.get("data") instanceof Map) {
                         workspace = (String) ((Map<?, ?>) requestBodyMap.get("data")).get("workspace");
                     }
-                    
-                    // For stockspree endpoints, try to extract workspace from different possible locations
+
+                    if (action == null && requestBodyMap.get("data") instanceof Map) {
+                        action = (String) ((Map<?, ?>) requestBodyMap.get("data")).get("action");
+                    }
+
+                    if (method == null && requestBodyMap.get("data") instanceof Map) {
+                        method = (String) ((Map<?, ?>) requestBodyMap.get("data")).get("method");
+                    }
+
+                    if (method != null) {
+                        RequestContext.setCurrentMethod(method);
+                        System.out.println("Method detected: " + method);
+                    }
+
+                    if (action != null) {
+                        RequestContext.setCurrentAction(action);
+                        System.out.println("Action detected: " + action);
+                    }
+
+                    // For stockspree endpoints, try to extract workspace from different possible
+                    // locations
                     if (workspace == null && request.getRequestURL().toString().contains("/stockspree/")) {
                         // Try to get workspace from headers
                         workspace = request.getHeader("X-Workspace");
@@ -62,7 +79,7 @@ public class WorkspaceInterceptor implements HandlerInterceptor {
                     } else {
                         System.out.println("No workspace found in request");
                     }
-                } catch (Exception e) {
+                } catch (JsonProcessingException e) {
                     System.out.println("Error parsing request body: " + e.getMessage());
                     // Don't fail the request, just log the error
                     // response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -77,7 +94,8 @@ public class WorkspaceInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
+            throws Exception {
         // Clean up if necessary
         WorkspaceContext.clear();
         RequestContext.clear(); // Clear the action context

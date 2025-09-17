@@ -32,6 +32,9 @@ public class Input_GetAllProductsIA {
     @JsonProperty(value = "searchedValue", required = true)
     private String searchedValue;
 
+    @JsonProperty(value = "nameFlag", required = true)
+    private Boolean nameFlag;
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor

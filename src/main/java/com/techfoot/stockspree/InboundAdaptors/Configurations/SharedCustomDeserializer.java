@@ -20,95 +20,105 @@ import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 @Component
 public class SharedCustomDeserializer {
- private final Map<Class<?>, List<FieldMetadata>> fieldMetadataCache = new ConcurrentHashMap<>();
+    private final Map<Class<?>, List<FieldMetadata>> fieldMetadataCache = new ConcurrentHashMap<>();
 
     /**
      * Main deserialization method that handles any input type
-     * @param jsonString - The JSON string to deserialize
-     * @param targetClass - The target class to deserialize to
+     * 
+     * @param jsonString   - The JSON string to deserialize
+     * @param targetClass  - The target class to deserialize to
      * @param objectMapper - Jackson ObjectMapper instance
      * @return Deserialized object with validation errors
      */
-    public <T> DeserializationResult<T> deserialize(String jsonString, Class<T> targetClass, ObjectMapper objectMapper) {
+    public <T> DeserializationResult<T> deserialize(String jsonString, Class<T> targetClass,
+            ObjectMapper objectMapper) {
         List<String> validationErrors = new ArrayList<>();
-        
+
         try {
             objectMapper.configure(
-                DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, 
-                false
-            );
+                    DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+                    false);
             T result = objectMapper.readValue(jsonString, targetClass);
-            
+
             return new DeserializationResult<>(result, validationErrors, false);
-            
-        } catch (Exception exception) {handleException(exception, jsonString, validationErrors, objectMapper, targetClass);
+
+        } catch (JsonProcessingException exception) {
+            handleException(exception, jsonString, validationErrors, objectMapper, targetClass);
             return new DeserializationResult<>(null, validationErrors, true);
         }
     }
-    private void handleException(Exception exception, String jsonString, List<String> validationErrors, 
-                               ObjectMapper objectMapper, Class<?> targetClass) {
-        if (exception instanceof InvalidFormatException) {
-            handleInvalidFormatException((InvalidFormatException) exception, validationErrors);
-            // For InvalidFormatException, we need to continue with manual parsing to find all errors
+
+    private void handleException(Exception exception, String jsonString, List<String> validationErrors,
+            ObjectMapper objectMapper, Class<?> targetClass) {
+        if (exception instanceof InvalidFormatException invalidFormatException) {
+            handleInvalidFormatException(invalidFormatException, validationErrors);
+            // For InvalidFormatException, we need to continue with manual parsing to find
+            // all errors
             // especially for array elements
             manualParseWithErrorCollection(jsonString, validationErrors, objectMapper, targetClass);
-        } else if (exception instanceof UnrecognizedPropertyException) {
-            handleUnrecognizedPropertyException((UnrecognizedPropertyException) exception, validationErrors);
-        } else if (exception instanceof MismatchedInputException) {
-            handleMismatchedInputException((MismatchedInputException) exception, validationErrors);
-            // For MismatchedInputException, we need to continue with manual parsing to find all errors
+        } else if (exception instanceof UnrecognizedPropertyException unrecognizedPropertyException) {
+            handleUnrecognizedPropertyException(unrecognizedPropertyException, validationErrors);
+        } else if (exception instanceof MismatchedInputException mismatchedInputException) {
+            handleMismatchedInputException(mismatchedInputException, validationErrors);
+            // For MismatchedInputException, we need to continue with manual parsing to find
+            // all errors
             // especially for array elements
             manualParseWithErrorCollection(jsonString, validationErrors, objectMapper, targetClass);
-        } else if (exception instanceof JsonProcessingException) {
-            handleJsonProcessingException((JsonProcessingException) exception, validationErrors);
+        } else if (exception instanceof JsonProcessingException jsonProcessingException) {
+            handleJsonProcessingException(jsonProcessingException, validationErrors);
         } else {
             manualParseWithErrorCollection(jsonString, validationErrors, objectMapper, targetClass);
         }
     }
 
-    private void handleInvalidFormatException(InvalidFormatException exception, List<String> validationErrors) {
-        String fieldPath = extractFieldPath(exception.getPath());
-        String expectedType = getExpectedType(exception.getTargetType());
+    private void handleUnrecognizedPropertyException(UnrecognizedPropertyException unrecognizedPropertyException,
+            List<String> validationErrors) {
+        // Skip unknown fields instead of adding them as errors
+    }
+
+    private void handleInvalidFormatException(InvalidFormatException invalidFormatException,
+            List<String> validationErrors) {
+        String fieldPath = extractFieldPath(invalidFormatException.getPath());
+        String expectedType = getExpectedType(invalidFormatException.getTargetType());
         validationErrors.add(
                 "Field '" + fieldPath + "': Invalid data type. Expected " + expectedType);
-        
+
         // For array-related errors, we need to continue parsing to find all errors
         // The exception path will tell us if this is an array element error
         if (fieldPath.contains("[")) {
-            // This is an array element error, we should continue parsing to find more errors
+            // This is an array element error, we should continue parsing to find more
+            // errors
             // The manual parsing will be triggered by the catch block in deserialize method
         }
     }
-    private void handleUnrecognizedPropertyException(UnrecognizedPropertyException exception, List<String> validationErrors) {
-        // Skip unknown fields instead of adding them as errors
-    }
+    // Skip unknown fields instead of adding them as errors
+
     private void handleMismatchedInputException(MismatchedInputException exception, List<String> validationErrors) {
         String fieldPath = extractFieldPath(exception.getPath());
         String expectedType = getExpectedType(exception.getTargetType());
         validationErrors.add(
-            "Field '" + fieldPath + "': Invalid data type. Expected " + expectedType
-        );
-        
+                "Field '" + fieldPath + "': Invalid data type. Expected " + expectedType);
+
         // For array-related errors, we need to continue parsing to find all errors
         // The exception path will tell us if this is an array element error
         if (fieldPath.contains("[")) {
-            // This is an array element error, we should continue parsing to find more errors
+            // This is an array element error, we should continue parsing to find more
+            // errors
             // The manual parsing will be triggered by the catch block in deserialize method
         }
     }
 
     private void handleJsonProcessingException(JsonProcessingException exception, List<String> validationErrors) {
         validationErrors.add(
-            "Invalid JSON format: " + exception.getOriginalMessage()
-        );
+                "Invalid JSON format: " + exception.getOriginalMessage());
     }
 
-    private void manualParseWithErrorCollection(String jsonString, List<String> validationErrors, 
-                                              ObjectMapper objectMapper, Class<?> targetClass) {
+    private void manualParseWithErrorCollection(String jsonString, List<String> validationErrors,
+            ObjectMapper objectMapper, Class<?> targetClass) {
         try {
             JsonNode jsonNode = objectMapper.readTree(jsonString);
             validateJsonStructure(jsonNode, validationErrors, targetClass);
-        } catch (Exception e) {
+        } catch (JsonProcessingException e) {
             validationErrors.add("JSON parsing failed: " + e.getMessage());
         }
     }
@@ -120,25 +130,27 @@ public class SharedCustomDeserializer {
         validateJsonStructure(node, validationErrors, "", targetClass);
     }
 
-    private void validateJsonStructure(JsonNode node, List<String> validationErrors, String path, Class<?> targetClass) {
+    private void validateJsonStructure(JsonNode node, List<String> validationErrors, String path,
+            Class<?> targetClass) {
         if (node.isObject()) {
             // Get field metadata for the target class
             List<FieldMetadata> fieldMetadataList = getFieldMetadata(targetClass);
-            
+
             java.util.Iterator<String> fields = node.fieldNames();
             while (fields.hasNext()) {
                 String fieldName = fields.next();
                 String fieldPath = path.isEmpty() ? fieldName : path + "." + fieldName;
                 JsonNode fieldNode = node.get(fieldName);
-                
+
                 // Find corresponding field metadata
                 FieldMetadata fieldMetadata = findFieldMetadata(fieldName, fieldMetadataList);
-                
+
                 // Validate field based on metadata
                 validateField(fieldName, fieldNode, fieldPath, validationErrors, fieldMetadata);
-                
+
                 // If this is a List field and contains objects, validate each element
-                if (fieldMetadata != null && List.class.isAssignableFrom(fieldMetadata.getFieldType()) && fieldNode.isArray()) {
+                if (fieldMetadata != null && List.class.isAssignableFrom(fieldMetadata.getFieldType())
+                        && fieldNode.isArray()) {
                     validateListElements(fieldNode, fieldPath, validationErrors, fieldMetadata);
                 }
             }
@@ -153,14 +165,15 @@ public class SharedCustomDeserializer {
     /**
      * Validate elements in a List field
      */
-    private void validateListElements(JsonNode arrayNode, String arrayPath, List<String> validationErrors, FieldMetadata fieldMetadata) {
+    private void validateListElements(JsonNode arrayNode, String arrayPath, List<String> validationErrors,
+            FieldMetadata fieldMetadata) {
         // Get the generic type of the List if possible
         Class<?> elementType = getListElementType(fieldMetadata);
-        
+
         for (int i = 0; i < arrayNode.size(); i++) {
             JsonNode elementNode = arrayNode.get(i);
             String elementPath = arrayPath + "[" + i + "]";
-            
+
             try {
                 if (elementNode.isObject()) {
                     // Validate each object in the array using the element type
@@ -177,15 +190,17 @@ public class SharedCustomDeserializer {
                     }
                 } else {
                     // Validate primitive array elements
-                    validateField("element", elementNode, elementPath, validationErrors, 
-                        new FieldMetadata("element", elementType != null ? elementType : Object.class, null, false, 0, 0, null));
+                    validateField("element", elementNode, elementPath, validationErrors,
+                            new FieldMetadata("element", elementType != null ? elementType : Object.class, null, false,
+                                    0, 0, null));
                 }
-            } catch (Exception e) {
-                // If validation fails for this element, log the error but continue with other elements
+            } catch (JsonProcessingException e) {
+                // If validation fails for this element, log the error but continue with other
+                // elements
                 validationErrors.add("Field '" + elementPath + "': Validation failed - " + e.getMessage());
             }
         }
-       }
+    }
 
     /**
      * Validate a generic object when we don't know its specific type
@@ -197,7 +212,7 @@ public class SharedCustomDeserializer {
                 String fieldName = fields.next();
                 JsonNode fieldNode = objectNode.get(fieldName);
                 String fieldPath = objectPath + "." + fieldName;
-                
+
                 // Basic type validation for unknown fields
                 if (fieldNode.isTextual()) {
                     // String field - no specific validation needed
@@ -225,7 +240,7 @@ public class SharedCustomDeserializer {
         for (int i = 0; i < arrayNode.size(); i++) {
             JsonNode elementNode = arrayNode.get(i);
             String elementPath = arrayPath + "[" + i + "]";
-            
+
             if (elementNode.isObject()) {
                 validateGenericObject(elementNode, elementPath, validationErrors);
             } else if (elementNode.isArray()) {
@@ -260,9 +275,9 @@ public class SharedCustomDeserializer {
     /**
      * Validate individual field using field metadata
      */
-    private void validateField(String fieldName, JsonNode fieldNode, String fieldPath, 
-                             List<String> validationErrors, FieldMetadata fieldMetadata) {
-        
+    private void validateField(String fieldName, JsonNode fieldNode, String fieldPath,
+            List<String> validationErrors, FieldMetadata fieldMetadata) {
+
         try {
             if (fieldMetadata == null) {
                 return;
@@ -276,13 +291,13 @@ public class SharedCustomDeserializer {
             }
             Class<?> expectedType = fieldMetadata.getFieldType();
             boolean isValid = validateFieldType(fieldNode, expectedType, fieldMetadata);
-            
+
             if (!isValid) {
                 String expectedTypeName = getExpectedType(expectedType);
                 String actualType = getActualType(fieldNode);
                 validationErrors.add(
-                    "Field '" + fieldPath + "': Invalid data type. Expected " + expectedTypeName + ", got " + actualType
-                );
+                        "Field '" + fieldPath + "': Invalid data type. Expected " + expectedTypeName + ", got "
+                                + actualType);
             }
 
             // Validate string length constraints
@@ -290,8 +305,8 @@ public class SharedCustomDeserializer {
                 String value = fieldNode.asText();
                 if (value.length() > fieldMetadata.getMaxLength()) {
                     validationErrors.add(
-                        "Field '" + fieldPath + "': Length exceeds maximum of " + fieldMetadata.getMaxLength() + " characters"
-                    );
+                            "Field '" + fieldPath + "': Length exceeds maximum of " + fieldMetadata.getMaxLength()
+                                    + " characters");
                 }
             }
 
@@ -299,8 +314,8 @@ public class SharedCustomDeserializer {
                 String value = fieldNode.asText();
                 if (value.length() < fieldMetadata.getMinLength()) {
                     validationErrors.add(
-                        "Field '" + fieldPath + "': Length must be at least " + fieldMetadata.getMinLength() + " characters"
-                    );
+                            "Field '" + fieldPath + "': Length must be at least " + fieldMetadata.getMinLength()
+                                    + " characters");
                 }
             }
 
@@ -309,12 +324,12 @@ public class SharedCustomDeserializer {
                 double value = fieldNode.asDouble();
                 if (value < fieldMetadata.getMinValue()) {
                     validationErrors.add(
-                        "Field '" + fieldPath + "': Value must be at least " + fieldMetadata.getMinValue()
-                    );
+                            "Field '" + fieldPath + "': Value must be at least " + fieldMetadata.getMinValue());
                 }
             }
         } catch (Exception e) {
-            // If validation fails for this field, log the error but continue with other fields
+            // If validation fails for this field, log the error but continue with other
+            // fields
             validationErrors.add("Field '" + fieldPath + "': Validation failed - " + e.getMessage());
         }
     }
@@ -336,7 +351,7 @@ public class SharedCustomDeserializer {
         } else if (expectedType.isEnum()) {
             return fieldNode.isTextual() && isValidEnumValue(fieldNode.asText(), expectedType);
         }
-        
+
         // For complex objects, allow object or null
         return fieldNode.isObject() || fieldNode.isNull();
     }
@@ -352,9 +367,10 @@ public class SharedCustomDeserializer {
      * Check if node is a valid number string
      */
     private boolean isValidNumberString(JsonNode node) {
-        if (!node.isTextual()) return false;
+        if (!node.isTextual())
+            return false;
         try {
-            Double.parseDouble(node.asText());
+            Double.valueOf(node.asText());
             return true;
         } catch (NumberFormatException e) {
             return false;
@@ -365,7 +381,8 @@ public class SharedCustomDeserializer {
      * Check if node is a valid integer string
      */
     private boolean isValidIntegerString(JsonNode node) {
-        if (!node.isTextual()) return false;
+        if (!node.isTextual())
+            return false;
         try {
             Integer.parseInt(node.asText());
             return true;
@@ -398,25 +415,26 @@ public class SharedCustomDeserializer {
      */
     private List<FieldMetadata> extractFieldMetadata(Class<?> targetClass) {
         List<FieldMetadata> metadataList = new ArrayList<>();
-        
+
         // Get all declared fields including inherited ones
         Class<?> currentClass = targetClass;
         while (currentClass != null && currentClass != Object.class) {
             Field[] fields = currentClass.getDeclaredFields();
-            
+
             for (Field field : fields) {
                 // Skip synthetic fields
-                if (field.isSynthetic()) continue;
-                
+                if (field.isSynthetic())
+                    continue;
+
                 FieldMetadata metadata = createFieldMetadata(field);
                 if (metadata != null) {
                     metadataList.add(metadata);
                 }
             }
-            
+
             currentClass = currentClass.getSuperclass();
         }
-        
+
         return metadataList;
     }
 
@@ -431,22 +449,21 @@ public class SharedCustomDeserializer {
             int minLength = getMinLength(field);
             int maxLength = getMaxLength(field);
             Double minValue = getMinValue(field);
-            
+
             // Handle generic types for List fields
             Class<?> actualElementType = fieldType;
             if (List.class.isAssignableFrom(fieldType)) {
                 actualElementType = getGenericType(field);
             }
-            
+
             return new FieldMetadata(
-                jsonPropertyName,
-                fieldType,
-                actualElementType, // Add element type for generic fields
-                isRequired,
-                minLength,
-                maxLength,
-                minValue
-            );
+                    jsonPropertyName,
+                    fieldType,
+                    actualElementType, // Add element type for generic fields
+                    isRequired,
+                    minLength,
+                    maxLength,
+                    minValue);
         } catch (Exception e) {
             // Log error and return null to skip this field
             System.err.println("Error creating metadata for field " + field.getName() + ": " + e.getMessage());
@@ -459,8 +476,8 @@ public class SharedCustomDeserializer {
      */
     private Class<?> getGenericType(Field field) {
         try {
-            java.lang.reflect.ParameterizedType paramType = 
-                (java.lang.reflect.ParameterizedType) field.getGenericType();
+            java.lang.reflect.ParameterizedType paramType = (java.lang.reflect.ParameterizedType) field
+                    .getGenericType();
             if (paramType != null && paramType.getActualTypeArguments().length > 0) {
                 java.lang.reflect.Type typeArg = paramType.getActualTypeArguments()[0];
                 if (typeArg instanceof Class) {
@@ -489,8 +506,8 @@ public class SharedCustomDeserializer {
      */
     private boolean isFieldRequired(Field field) {
         return field.isAnnotationPresent(jakarta.validation.constraints.NotNull.class) ||
-               field.isAnnotationPresent(jakarta.validation.constraints.NotBlank.class) ||
-               field.isAnnotationPresent(jakarta.validation.constraints.NotEmpty.class);
+                field.isAnnotationPresent(jakarta.validation.constraints.NotBlank.class) ||
+                field.isAnnotationPresent(jakarta.validation.constraints.NotEmpty.class);
     }
 
     /**
@@ -501,12 +518,12 @@ public class SharedCustomDeserializer {
         if (size != null) {
             return size.min();
         }
-        
+
         jakarta.validation.constraints.Min min = field.getAnnotation(jakarta.validation.constraints.Min.class);
         if (min != null && field.getType() == String.class) {
             return (int) min.value();
         }
-        
+
         return 0;
     }
 
@@ -526,8 +543,8 @@ public class SharedCustomDeserializer {
      */
     private Double getMinValue(Field field) {
         jakarta.validation.constraints.Min min = field.getAnnotation(jakarta.validation.constraints.Min.class);
-        if (min != null && (field.getType() == Integer.class || field.getType() == int.class || 
-                           field.getType() == Double.class || field.getType() == double.class)) {
+        if (min != null && (field.getType() == Integer.class || field.getType() == int.class ||
+                field.getType() == Double.class || field.getType() == double.class)) {
             return (double) min.value();
         }
         return null;
@@ -537,14 +554,15 @@ public class SharedCustomDeserializer {
      * Extract field path from exception path
      */
     private String extractFieldPath(List<JsonMappingException.Reference> path) {
-        if (path == null || path.isEmpty()) return "unknown";
-        
+        if (path == null || path.isEmpty())
+            return "unknown";
+
         StringBuilder fieldPath = new StringBuilder();
         for (JsonMappingException.Reference ref : path) {
             if (fieldPath.length() > 0) {
                 fieldPath.append(".");
             }
-            
+
             if (ref.getFieldName() != null) {
                 fieldPath.append(ref.getFieldName());
             } else if (ref.getIndex() >= 0) {
@@ -560,15 +578,22 @@ public class SharedCustomDeserializer {
      * Get expected type name
      */
     private String getExpectedType(Class<?> targetType) {
-        if (targetType == null) return "valid type";
-        
-        if (targetType == String.class) return "string";
-        if (targetType == Integer.class || targetType == int.class) return "integer";
-        if (targetType == Double.class || targetType == double.class) return "number";
-        if (targetType == Boolean.class || targetType == boolean.class) return "boolean";
-        if (targetType == List.class || targetType == ArrayList.class) return "list";
-        if (targetType.isEnum()) return "enum (" + targetType.getSimpleName() + ")";
-        
+        if (targetType == null)
+            return "valid type";
+
+        if (targetType == String.class)
+            return "string";
+        if (targetType == Integer.class || targetType == int.class)
+            return "integer";
+        if (targetType == Double.class || targetType == double.class)
+            return "number";
+        if (targetType == Boolean.class || targetType == boolean.class)
+            return "boolean";
+        if (targetType == List.class || targetType == ArrayList.class)
+            return "list";
+        if (targetType.isEnum())
+            return "enum (" + targetType.getSimpleName() + ")";
+
         return targetType.getSimpleName().toLowerCase();
     }
 
@@ -584,6 +609,7 @@ public class SharedCustomDeserializer {
             } catch (NumberFormatException e1) {
                 try {
                     Double.parseDouble(node.asText());
+                    System.out.println("node.asText(): " + node.asText());
                     return "string (numeric)";
                 } catch (NumberFormatException e2) {
                     return "string";
@@ -591,16 +617,23 @@ public class SharedCustomDeserializer {
             }
         }
         if (node.isNumber()) {
-            if (node.isInt()) return "integer";
-            if (node.isLong()) return "long";
-            if (node.isDouble()) return "number";
+            if (node.isInt())
+                return "integer";
+            if (node.isLong())
+                return "long";
+            if (node.isDouble())
+                return "number";
             return "number";
         }
-        if (node.isBoolean()) return "boolean";
-        if (node.isNull()) return "null";
-        if (node.isArray()) return "array";
-        if (node.isObject()) return "object";
-        
+        if (node.isBoolean())
+            return "boolean";
+        if (node.isNull())
+            return "null";
+        if (node.isArray())
+            return "array";
+        if (node.isObject())
+            return "object";
+
         return node.getNodeType().toString().toLowerCase();
     }
 
@@ -616,8 +649,8 @@ public class SharedCustomDeserializer {
         private final int maxLength;
         private final Double minValue;
 
-        public FieldMetadata(String jsonPropertyName, Class<?> fieldType, Class<?> elementType, 
-                           boolean required, int minLength, int maxLength, Double minValue) {
+        public FieldMetadata(String jsonPropertyName, Class<?> fieldType, Class<?> elementType,
+                boolean required, int minLength, int maxLength, Double minValue) {
             this.jsonPropertyName = jsonPropertyName;
             this.fieldType = fieldType;
             this.elementType = elementType;
@@ -627,13 +660,33 @@ public class SharedCustomDeserializer {
             this.minValue = minValue;
         }
 
-        public String getJsonPropertyName() { return jsonPropertyName; }
-        public Class<?> getFieldType() { return fieldType; }
-        public Class<?> getElementType() { return elementType; }
-        public boolean isRequired() { return required; }
-        public int getMinLength() { return minLength; }
-        public int getMaxLength() { return maxLength; }
-        public Double getMinValue() { return minValue; }
+        public String getJsonPropertyName() {
+            return jsonPropertyName;
+        }
+
+        public Class<?> getFieldType() {
+            return fieldType;
+        }
+
+        public Class<?> getElementType() {
+            return elementType;
+        }
+
+        public boolean isRequired() {
+            return required;
+        }
+
+        public int getMinLength() {
+            return minLength;
+        }
+
+        public int getMaxLength() {
+            return maxLength;
+        }
+
+        public Double getMinValue() {
+            return minValue;
+        }
     }
 
     /**
@@ -666,4 +719,4 @@ public class SharedCustomDeserializer {
             return !hasErrors && validationErrors.isEmpty();
         }
     }
-} 
+}

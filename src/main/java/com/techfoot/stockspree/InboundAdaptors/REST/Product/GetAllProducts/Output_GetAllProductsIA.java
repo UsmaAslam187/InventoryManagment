@@ -17,7 +17,15 @@ public class Output_GetAllProductsIA {
     private boolean success;
     private String message;
     private List<String> error;
-    private List<Product> products;
+    private DataWrapper data;
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class DataWrapper {
+        private List<Product> products;
+        private Page page;
+    }
 
     @Data
     @AllArgsConstructor
@@ -25,9 +33,22 @@ public class Output_GetAllProductsIA {
     public static class Product {
         private String code;
         private String name;
-        private Integer price;
+        private Double price;
+        private String tax;
+        private String type;
         private Integer salesAccount;
         private Integer purchaseAccount;
+    }
 
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Page {
+        private Integer size;
+        private Integer totalElements;
+        private Integer totalPages;
+        private Integer pageNumber;
+        private String searchedValue;
+        private Boolean csvExport;
     }
 }

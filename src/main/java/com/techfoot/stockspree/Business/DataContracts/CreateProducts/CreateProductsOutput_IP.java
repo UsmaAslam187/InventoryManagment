@@ -1,11 +1,11 @@
-package com.techfoot.stockspree.Business.DataContracts.CreateProduct;
+package com.techfoot.stockspree.Business.DataContracts.CreateProducts;
 import java.util.List;
 
 import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateProductOutput_IP {
+public class CreateProductsOutput_IP {
     private Boolean success;
     private String message;
     private List<String> errors;

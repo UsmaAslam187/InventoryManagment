@@ -49,33 +49,49 @@ public class GetAllProductsIA {
 
         Input_GetAllProductsIA input = deserializationResult.getResult();
         GetAllProductsInput_IP inputIP = new GetAllProductsInput_IP();
+        inputIP.setNameFlag(input.getNameFlag());
         if (input.getSearchedValue() != null) {
             inputIP.setSearchedValue(input.getSearchedValue());
-        } else if (input.getPage() != null) {
-            inputIP.setPage(new GetAllProductsInput_IP.Page(input.getPage().getSize(), input.getPage().getTotalElements(),
-                    input.getPage().getTotalPages(), input.getPage().getPageNumber(),
-                    input.getPage().getSearchedValue(),
-                    input.getPage().getCsvExport()));
+        }if (input.getPage() != null) {
+            inputIP.setPage(
+                    new GetAllProductsInput_IP.Page(input.getPage().getSize(), input.getPage().getTotalElements(),
+                            input.getPage().getTotalPages(), input.getPage().getPageNumber(),
+                            input.getPage().getSearchedValue(),
+                            input.getPage().getCsvExport()));
         } else {
             return new Output_GetAllProductsIA(false, "Input validation failed",
                     Arrays.asList("SearchedValue or Page is required"), null);
         }
         GetAllProductsOutput_IP outputIP = handler.getAllProducts(inputIP);
 
-        List<Output_GetAllProductsIA.Product> products = new ArrayList<>();
+        List<Output_GetAllProductsIA.Product> products = new ArrayList<Output_GetAllProductsIA.Product>();
         if (outputIP.getProducts() != null) {
             for (GetAllProductsOutput_IP.Product ipProduct : outputIP.getProducts()) {
                 Output_GetAllProductsIA.Product product = new Output_GetAllProductsIA.Product();
                 product.setCode(ipProduct.getCode());
                 product.setName(ipProduct.getName());
                 product.setPrice(ipProduct.getPrice());
+                product.setTax(ipProduct.getTax());
+                product.setType(ipProduct.getType());
                 product.setSalesAccount(ipProduct.getSalesAccount());
                 product.setPurchaseAccount(ipProduct.getPurchaseAccount());
                 products.add(product);
             }
         }
 
+        // Map Page object from business layer to adapter layer
+        Output_GetAllProductsIA.Page page = null;
+        if (outputIP.getPage() != null) {
+            page = new Output_GetAllProductsIA.Page();
+            page.setSize(outputIP.getPage().getSize());
+            page.setTotalElements(outputIP.getPage().getTotalElements());
+            page.setTotalPages(outputIP.getPage().getTotalPages());
+            page.setPageNumber(outputIP.getPage().getPageNumber());
+            page.setSearchedValue(outputIP.getPage().getSearchedValue());
+            page.setCsvExport(outputIP.getPage().getCsvExport());
+        }
+
         return new Output_GetAllProductsIA(outputIP.getSuccess(), outputIP.getMessage(),
-                outputIP.getErrors(), products);
+                outputIP.getErrors(), new Output_GetAllProductsIA.DataWrapper(products, page));
     }
 }

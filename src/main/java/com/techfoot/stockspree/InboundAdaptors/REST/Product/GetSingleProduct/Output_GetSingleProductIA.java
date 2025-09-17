@@ -25,7 +25,9 @@ public class Output_GetSingleProductIA {
     public static class Product {
         private String code;
         private String name;
-        private Integer price;
+        private Double price;
+        private String tax;
+        private String type;
         private Integer salesAccount;
         private Integer purchaseAccount;
 

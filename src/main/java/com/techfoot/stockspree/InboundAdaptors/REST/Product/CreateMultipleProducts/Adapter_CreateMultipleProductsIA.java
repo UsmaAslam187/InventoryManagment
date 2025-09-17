@@ -1,0 +1,221 @@
+package com.techfoot.stockspree.InboundAdaptors.REST.Product.CreateMultipleProducts;
+
+import com.techfoot.stockspree.OutboundPort.RPC.REST.SchedulerPorts.C_ScheduleProductCreation.Output_ScheduleProductsCreationOP;
+import com.techfoot.stockspree.OutboundPort.RPC.REST.SchedulerPorts.C_ScheduleProductCreation.Port_ScheduleProductsCreationOP;
+import com.techfoot.stockspree.OutboundPort.RPC.REST.SchedulerPorts.C_UpdateScheduledProcess.Port_UpdateScheduledProcessOP;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.techfoot.stockspree.Business.DataContracts.CreateProducts.CreateProductsInput_IP;
+import com.techfoot.stockspree.Business.DataContracts.CreateProducts.CreateProductsOutput_IP;
+import com.techfoot.stockspree.InboundAdaptors.Configurations.CustomHttpRequestWrapper;
+import com.techfoot.stockspree.InboundAdaptors.Configurations.SharedCustomDeserializer;
+import com.techfoot.stockspree.InboundPort.Product.C_CreateProductsHandler;
+import com.techfoot.stockspree.OutboundAdaptors.REST.Schedular.C_UpdateScheduledProcess.UpdateProcess_Contracts.Request;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.servlet.http.HttpServletRequest;
+
+@Component
+public class Adapter_CreateMultipleProductsIA {
+
+    @Autowired
+    private SharedCustomDeserializer sharedDeserializer;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private Port_ScheduleProductsCreationOP port_ScheduleProductsCreationOP;
+
+    @Autowired
+    private Port_UpdateScheduledProcessOP port_UpdateScheduledProcessOP;
+
+    public Output_CreateMultipleProductsIA createMultipleProducts(HttpServletRequest request) throws IOException {
+        CustomHttpRequestWrapper wrappedRequest = (CustomHttpRequestWrapper) request
+                .getAttribute("wrappedRequest");
+        String requestBody = wrappedRequest != null ? wrappedRequest.getBody() : null;
+
+        // Use shared deserializer to handle all validation errors
+        SharedCustomDeserializer.DeserializationResult<Input_CreateMultipleProductsIA> deserializationResult = sharedDeserializer
+                .deserialize(requestBody, Input_CreateMultipleProductsIA.class, objectMapper);
+
+        // Check if deserialization had errors
+        if (deserializationResult.hasErrors() || !deserializationResult.getValidationErrors().isEmpty()) {
+            return new Output_CreateMultipleProductsIA(false, "Invalid request", 400,
+                    deserializationResult.getValidationErrors());
+        }
+
+        Input_CreateMultipleProductsIA input = deserializationResult.getResult();
+
+        if (input.getOperation().equals("schedule")) {
+            Output_ScheduleProductsCreationOP output = port_ScheduleProductsCreationOP.handleSchedule(input);
+            return new Output_CreateMultipleProductsIA(true, output.getMessage(), 200, null, output.getInstanceId());
+        }
+        List<String> errorMessages = new ArrayList<>();
+        boolean success = true;
+
+        try {
+            List<ProductsIA.Product> products;
+            String[] errorList;
+            String errorMessage;
+            C_CreateProductsHandler productHandler = new C_CreateProductsHandler();
+            try {
+                String productsJson = parseProductsStringToJson(input.getData().getProducts());
+                SharedCustomDeserializer.DeserializationResult<ProductsIA> productsDeserializationResult = sharedDeserializer
+                        .deserialize(productsJson, ProductsIA.class, objectMapper);
+
+                if (productsDeserializationResult.hasErrors()
+                        || !productsDeserializationResult.getValidationErrors().isEmpty()) {
+                    throw new Exception("Errors found in products data: "
+                            + String.join("; ", productsDeserializationResult.getValidationErrors()));
+                }
+
+                products = productsDeserializationResult.getResult().getProducts();
+
+                CreateProductsInput_IP inputIP = new CreateProductsInput_IP();
+                inputIP.setProducts(products.stream()
+                        .map(product -> new CreateProductsInput_IP.Product(product.getName(), product.getCode(),
+                                product.getPrice(), product.getTax(), product.getType(),
+                                product.getSalesAccount(),
+                                product.getPurchaseAccount()))
+                        .collect(Collectors.toList()));
+                CreateProductsOutput_IP outputIP = productHandler.createProducts(inputIP);
+                return new Output_CreateMultipleProductsIA(outputIP.getSuccess(), outputIP.getMessage(), 200, outputIP.getErrors(), null);
+            } catch (Exception e) {
+                errorMessage = e.getMessage();
+                errorMessage = errorMessage.replace(";", ",");
+                if (errorMessage.startsWith("Errors found in products data:")) {
+                    String trimmedErrorMessage = errorMessage.substring("Errors found in products data:".length())
+                            .trim();
+                    errorList = trimmedErrorMessage.split("; ");
+                    for (String error : errorList) {
+                        errorMessages.add(error.trim());
+                    }
+                } else {
+                    errorMessages.add(errorMessage);
+                }
+            }
+        } catch (Exception e) {
+            return new Output_CreateMultipleProductsIA(false, "Failed to process products: " + e.getMessage(), 400,
+                    null, null);
+        }
+
+        String message = success ? "All products created successfully" : "Some products failed to create.";
+        if (success) {
+            updateProcessStatus(input, "Done", message);
+        } else {
+            String concatenatedErrorMessages = String.join(" # ", errorMessages);
+            updateProcessStatus(input, "Fail", concatenatedErrorMessages);
+        }
+        return new Output_CreateMultipleProductsIA(success, message, success ? 200 : 207,
+                errorMessages.isEmpty() ? null : errorMessages, null);
+    }
+
+    public String parseProductsStringToJson(String productsData) {
+        try {
+            System.out.println("Parsing products data to JSON: " + productsData);
+
+            if (productsData == null || productsData.isEmpty()) {
+                return "[]";
+            }
+
+            String[] rows = productsData.split("@#");
+            if (rows.length < 2) {
+                return "[]";
+            }
+
+            String[] headers = rows[0].split(",");
+            StringBuilder jsonBuilder = new StringBuilder();
+            jsonBuilder.append("{\"products\":");
+            jsonBuilder.append("[");
+            for (int i = 1; i < rows.length; i++) {
+                String[] values = rows[i].split(",");
+
+                for (int j = 0; j < values.length; j++) {
+                    if (values[j] != null) {
+                        values[j] = values[j].replace("&%", ",");
+                    }
+                }
+
+                if (values.length != headers.length) {
+                    System.err.println("Line " + (i + 1) + ": Column count mismatch. Expected " + headers.length
+                            + " but found " + values.length);
+                    continue;
+                }
+
+                if (i > 1) {
+                    jsonBuilder.append(",");
+                }
+
+                jsonBuilder.append("{");
+
+                for (int j = 0; j < headers.length; j++) {
+                    String header = headers[j].trim();
+                    String value = values[j].trim();
+
+                    if (j > 0) {
+                        jsonBuilder.append(",");
+                    }
+
+                    String jsonProperty = mapHeaderToJsonProperty(header);
+                    jsonBuilder.append("\"").append(jsonProperty).append("\":");
+
+                    if (isNumericField(header)) {
+                        jsonBuilder.append(value);
+                    } else {
+                        jsonBuilder.append("\"").append(value).append("\"");
+                    }
+                }
+
+                jsonBuilder.append("}");
+            }
+            jsonBuilder.append("]}");
+            String jsonResult = jsonBuilder.toString();
+            System.out.println("Generated JSON: " + jsonResult);
+            return jsonResult;
+
+        } catch (Exception e) {
+            System.err.println("Error parsing products string to JSON: " + e.getMessage());
+            return "[]";
+        }
+    }
+    private String mapHeaderToJsonProperty(String header) {
+        return switch (header.toLowerCase()) {
+            case "salesaccount" -> "salesAccount";
+            case "purchaseaccount" -> "purchaseAccount";
+            default -> header.toLowerCase();
+        };
+    }
+
+    /**
+     * Check if a field should be treated as numeric
+     */
+    private boolean isNumericField(String header) {
+        String lowerHeader = header.toLowerCase();
+        return lowerHeader.equals("price") ||
+                lowerHeader.equals("salesaccount") ||
+                lowerHeader.equals("purchaseaccount");
+    }
+
+    private void updateProcessStatus(Input_CreateMultipleProductsIA request, String status, String message) {
+        Request updateRequest = new Request();
+        Request.ProcessDetail processDetail = new Request.ProcessDetail();
+
+        processDetail.setInstanceId(request.getProcessInstanceId());
+        processDetail.setStatus(status);
+        processDetail.setMessage(message);
+
+        updateRequest.setProcess(processDetail);
+
+        // Call the outbound adapter to update the process
+        port_UpdateScheduledProcessOP.handleUpdateScheduledProcess(updateRequest);
+    }
+
+}
