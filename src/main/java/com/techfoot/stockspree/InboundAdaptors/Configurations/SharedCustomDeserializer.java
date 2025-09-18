@@ -81,11 +81,8 @@ public class SharedCustomDeserializer {
             List<String> validationErrors) {
         String fieldPath = extractFieldPath(invalidFormatException.getPath());
         String expectedType = getExpectedType(invalidFormatException.getTargetType());
-        validationErrors.add(
-                "Field '" + fieldPath + "': Invalid data type. Expected " + expectedType);
-
-        // For array-related errors, we need to continue parsing to find all errors
-        // The exception path will tell us if this is an array element error
+        // validationErrors.add(
+        //         "Field '" + fieldPath + "': Invalid data type. Expected " + expectedType);
         if (fieldPath.contains("[")) {
             // This is an array element error, we should continue parsing to find more
             // errors
@@ -100,8 +97,6 @@ public class SharedCustomDeserializer {
         validationErrors.add(
                 "Field '" + fieldPath + "': Invalid data type. Expected " + expectedType);
 
-        // For array-related errors, we need to continue parsing to find all errors
-        // The exception path will tell us if this is an array element error
         if (fieldPath.contains("[")) {
             // This is an array element error, we should continue parsing to find more
             // errors

@@ -69,17 +69,16 @@ public class Adapter_CreateMultipleProductsIA {
             String errorMessage;
             try {
                 String productsJson = parseProductsStringToJson(input.getData().getProducts());
-                SharedCustomDeserializer.DeserializationResult<ProductsIA> productsDeserializationResult = sharedDeserializer
-                        .deserialize(productsJson, ProductsIA.class, objectMapper);
+                SharedCustomDeserializer.DeserializationResult<ProductsIA> deserializationResult1 = sharedDeserializer.deserialize(productsJson, ProductsIA.class, objectMapper);
 
-                if (productsDeserializationResult.hasErrors()
-                        || !productsDeserializationResult.getValidationErrors().isEmpty()) {
-                    throw new Exception("Errors found in products data: "
-                            + String.join("; ", productsDeserializationResult.getValidationErrors()));
+                // Check if deserialization had errors
+                if (deserializationResult1.hasErrors() || !deserializationResult1.getValidationErrors().isEmpty()) {
+                    updateProcessStatus(input, "Fail", String.join("; ", deserializationResult1.getValidationErrors()));
+                    return new Output_CreateMultipleProductsIA(false, "Input validation failed", 400,
+                            deserializationResult1.getValidationErrors());
                 }
 
-                products = productsDeserializationResult.getResult().getProducts();
-
+                products = deserializationResult1.getResult().getProducts();
                 CreateProductsInput_IP inputIP = new CreateProductsInput_IP();
                 inputIP.setProducts(products.stream()
                         .map(product -> new CreateProductsInput_IP.Product(product.getName(), product.getCode(),
@@ -168,11 +167,7 @@ public class Adapter_CreateMultipleProductsIA {
                     String jsonProperty = mapHeaderToJsonProperty(header);
                     jsonBuilder.append("\"").append(jsonProperty).append("\":");
 
-                    if (isNumericField(header)) {
-                        jsonBuilder.append(value);
-                    } else {
-                        jsonBuilder.append("\"").append(value).append("\"");
-                    }
+                    jsonBuilder.append("\"").append(value).append("\"");
                 }
 
                 jsonBuilder.append("}");
@@ -198,17 +193,6 @@ public class Adapter_CreateMultipleProductsIA {
                 header.toLowerCase();
         };
     }
-
-    /**
-     * Check if a field should be treated as numeric
-     */
-    private boolean isNumericField(String header) {
-        String lowerHeader = header.toLowerCase();
-        return lowerHeader.equals("price")
-                || lowerHeader.equals("salesaccount")
-                || lowerHeader.equals("purchaseaccount");
-    }
-
     private void updateProcessStatus(Input_CreateMultipleProductsIA request, String status, String message) {
         Request updateRequest = new Request();
         Request.ProcessDetail processDetail = new Request.ProcessDetail();
@@ -218,8 +202,6 @@ public class Adapter_CreateMultipleProductsIA {
         processDetail.setMessage(message);
 
         updateRequest.setProcess(processDetail);
-
-        // Call the outbound adapter to update the process
         port_UpdateScheduledProcessOP.handleUpdateScheduledProcess(updateRequest);
     }
 

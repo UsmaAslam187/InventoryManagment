@@ -3,6 +3,7 @@ package com.techfoot.stockspree.OutboundAdaptors.Memory.Cache.Q_GetAllWorkspaces
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,7 @@ public class GetAllWorkspacesOAProd implements Port_GetAllWorkspacesOP {
     private RedisClient redisClient;
 
     public GetAllWorkspacesOAProd() {
-        this.redisClient = new RedisClient();
+        redisClient = new RedisClient();
     }
 
     @Override
@@ -39,7 +40,7 @@ public class GetAllWorkspacesOAProd implements Port_GetAllWorkspacesOP {
     private Map<String, List<Map<String, String>>> deserializeWorkspaceData(String cachedData) {
         try {
             return new ObjectMapper().readValue(cachedData, new TypeReference<Map<String, List<Map<String, String>>>>() {});
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
