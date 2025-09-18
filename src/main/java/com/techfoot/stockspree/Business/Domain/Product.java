@@ -28,32 +28,32 @@ public class Product extends DomainAggregate {
     @NotBlank(message = "Name is required")
     @Size(min = 1, max = 100, message = "Name must be between 1 and 100 characters")
     private String name;
-    
+
     @NotBlank(message = "Code is required")
     @Size(min = 1, max = 100, message = "Code must be between 1 and 100 characters")
     @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Code must be alphanumeric")
     private String code;
-    
+
     @Min(value = 0, message = "Price must be greater than or equal to 0")
     private Double price;
-    
+
     @Size(max = 100, message = "Tax must not exceed 100 characters")
     private String tax;
-    
+
     @NotNull(message = "Type is required")
     @Size(max = 100, message = "Type must not exceed 100 characters")
     @Pattern(regexp = "^(Consumable Product|Service Product)$", message = "Type must be either 'Consumable Product' or 'Service Product'")
     private String type;
-    
+
     @Min(value = 0, message = "Sales account must be greater than or equal to 0")
     private Integer salesAccount;
-    
+
     @Min(value = 0, message = "Purchase account must be greater than or equal to 0")
     private Integer purchaseAccount;
 
     private Validator validator;
     private List<Error_DomainEntity> errors;
- 
+
     // Parameterless constructor
     public Product() {
         super();
@@ -75,7 +75,7 @@ public class Product extends DomainAggregate {
 
     // Setters
     private void setName(String name) {
-        if(name == null){
+        if (name == null) {
             name = "";
         }
         this.name = name;
@@ -90,9 +90,9 @@ public class Product extends DomainAggregate {
         }
         this.code = code;
     }
-    
+
     private void setPrice(Double price) {
-        if(price == null){
+        if (price == null) {
             price = 0.0;
         }
         if (price < 0) {
@@ -100,9 +100,9 @@ public class Product extends DomainAggregate {
         }
         this.price = price;
     }
-    
+
     private void setTax(String tax) {
-        if(tax == null){
+        if (tax == null) {
             tax = "";
         }
         if (tax.length() > 100) {
@@ -112,7 +112,7 @@ public class Product extends DomainAggregate {
     }
 
     private void setType(String type) {
-        if(type == null){
+        if (type == null) {
             type = "";
         }
         if (!type.equals("Consumable Product") && !type.equals("Service Product") && !type.isEmpty()) {
@@ -122,7 +122,7 @@ public class Product extends DomainAggregate {
     }
 
     private void setSalesAccount(Integer salesAccount) {
-        if(salesAccount == null){
+        if (salesAccount == null) {
             salesAccount = 0;
         }
         if (salesAccount < 0) {
@@ -132,7 +132,7 @@ public class Product extends DomainAggregate {
     }
 
     private void setPurchaseAccount(Integer purchaseAccount) {
-        if(purchaseAccount == null){
+        if (purchaseAccount == null) {
             purchaseAccount = 0;
         }
         if (purchaseAccount < 0) {
@@ -145,7 +145,7 @@ public class Product extends DomainAggregate {
         this.errors = this.validate();
         return this.errors.isEmpty();
     }
-    
+
     private void setSimpleAttributesType(String name, String code, Double price, String tax, String type, Integer salesAccount, Integer purchaseAccount) {
         this.setName(name);
         this.setCode(code);
@@ -158,25 +158,24 @@ public class Product extends DomainAggregate {
 
     public List<String> validatePolicy() {
         List<String> errors = new ArrayList<>();
-        
+
         // Policy validation: SalesAccount or PurchaseAccount must exist
         // Commented out as per Node.js version
         /*
         if (this.salesAccount == null && this.purchaseAccount == null) {
             errors.add("SalesAccount or PurchaseAccount must exist");
         }
-        */
-        
+         */
         return errors;
     }
-    
+
     public List<Error_DomainEntity> validate() {
         Set<ConstraintViolation<Product>> violations = validator.validate(this);
         if (!violations.isEmpty()) {
             System.out.println(violations);
             List<Error_DomainEntity> violationMessages = violations.stream()
-                .map(message -> new Error_DomainEntity(false, message.getMessage()))
-                .collect(Collectors.toList());
+                    .map(message -> new Error_DomainEntity(false, message.getMessage()))
+                    .collect(Collectors.toList());
 
             return violationMessages;
         } else {
@@ -186,29 +185,29 @@ public class Product extends DomainAggregate {
 
     public List<String> setSimpleAttributesAndValidatePolicy(CreateProductsInput_IP.Product input) {
         List<String> errors = new ArrayList<>();
-        
+
         try {
             this.setSimpleAttributesType(
-                input.getName(), 
-                input.getCode(), 
-                input.getPrice(), 
-                input.getTax(), 
-                input.getType(), 
-                input.getSalesAccount(), 
-                input.getPurchaseAccount()
+                    input.getName(),
+                    input.getCode(),
+                    input.getPrice(),
+                    input.getTax(),
+                    input.getType(),
+                    input.getSalesAccount(),
+                    input.getPurchaseAccount()
             );
-            
-            if(this.isValid()){
+
+            if (this.isValid()) {
                 errors.addAll(this.validatePolicy());
             } else {
-                for(Error_DomainEntity error : this.errors) {
+                for (Error_DomainEntity error : this.errors) {
                     errors.add(error.getMessage());
                 }
             }
         } catch (Exception e) {
             errors.add("Error setting product attributes: " + e.getMessage());
         }
-        
+
         return errors;
     }
 }

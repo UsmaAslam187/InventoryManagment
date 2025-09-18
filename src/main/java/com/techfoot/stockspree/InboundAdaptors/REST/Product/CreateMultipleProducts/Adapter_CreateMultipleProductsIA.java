@@ -1,9 +1,5 @@
 package com.techfoot.stockspree.InboundAdaptors.REST.Product.CreateMultipleProducts;
 
-import com.techfoot.stockspree.OutboundPort.RPC.REST.SchedulerPorts.C_ScheduleProductCreation.Output_ScheduleProductsCreationOP;
-import com.techfoot.stockspree.OutboundPort.RPC.REST.SchedulerPorts.C_ScheduleProductCreation.Port_ScheduleProductsCreationOP;
-import com.techfoot.stockspree.OutboundPort.RPC.REST.SchedulerPorts.C_UpdateScheduledProcess.Port_UpdateScheduledProcessOP;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,13 +8,16 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.techfoot.stockspree.Business.DataContracts.CreateProducts.CreateProductsInput_IP;
 import com.techfoot.stockspree.Business.DataContracts.CreateProducts.CreateProductsOutput_IP;
 import com.techfoot.stockspree.InboundAdaptors.Configurations.CustomHttpRequestWrapper;
 import com.techfoot.stockspree.InboundAdaptors.Configurations.SharedCustomDeserializer;
 import com.techfoot.stockspree.InboundPort.Product.C_CreateProductsHandler;
 import com.techfoot.stockspree.OutboundAdaptors.REST.Schedular.C_UpdateScheduledProcess.UpdateProcess_Contracts.Request;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.techfoot.stockspree.OutboundPort.RPC.REST.SchedulerPorts.C_ScheduleProductCreation.Output_ScheduleProductsCreationOP;
+import com.techfoot.stockspree.OutboundPort.RPC.REST.SchedulerPorts.C_ScheduleProductCreation.Port_ScheduleProductsCreationOP;
+import com.techfoot.stockspree.OutboundPort.RPC.REST.SchedulerPorts.C_UpdateScheduledProcess.Port_UpdateScheduledProcessOP;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -36,6 +35,9 @@ public class Adapter_CreateMultipleProductsIA {
 
     @Autowired
     private Port_UpdateScheduledProcessOP port_UpdateScheduledProcessOP;
+
+    @Autowired
+    private C_CreateProductsHandler productHandler;  // Add this injection
 
     public Output_CreateMultipleProductsIA createMultipleProducts(HttpServletRequest request) throws IOException {
         CustomHttpRequestWrapper wrappedRequest = (CustomHttpRequestWrapper) request
@@ -65,7 +67,6 @@ public class Adapter_CreateMultipleProductsIA {
             List<ProductsIA.Product> products;
             String[] errorList;
             String errorMessage;
-            C_CreateProductsHandler productHandler = new C_CreateProductsHandler();
             try {
                 String productsJson = parseProductsStringToJson(input.getData().getProducts());
                 SharedCustomDeserializer.DeserializationResult<ProductsIA> productsDeserializationResult = sharedDeserializer
@@ -82,9 +83,9 @@ public class Adapter_CreateMultipleProductsIA {
                 CreateProductsInput_IP inputIP = new CreateProductsInput_IP();
                 inputIP.setProducts(products.stream()
                         .map(product -> new CreateProductsInput_IP.Product(product.getName(), product.getCode(),
-                                product.getPrice(), product.getTax(), product.getType(),
-                                product.getSalesAccount(),
-                                product.getPurchaseAccount()))
+                        product.getPrice(), product.getTax(), product.getType(),
+                        product.getSalesAccount(),
+                        product.getPurchaseAccount()))
                         .collect(Collectors.toList()));
                 CreateProductsOutput_IP outputIP = productHandler.createProducts(inputIP);
                 return new Output_CreateMultipleProductsIA(outputIP.getSuccess(), outputIP.getMessage(), 200, outputIP.getErrors(), null);
@@ -186,11 +187,15 @@ public class Adapter_CreateMultipleProductsIA {
             return "[]";
         }
     }
+
     private String mapHeaderToJsonProperty(String header) {
         return switch (header.toLowerCase()) {
-            case "salesaccount" -> "salesAccount";
-            case "purchaseaccount" -> "purchaseAccount";
-            default -> header.toLowerCase();
+            case "salesaccount" ->
+                "salesAccount";
+            case "purchaseaccount" ->
+                "purchaseAccount";
+            default ->
+                header.toLowerCase();
         };
     }
 
@@ -199,9 +204,9 @@ public class Adapter_CreateMultipleProductsIA {
      */
     private boolean isNumericField(String header) {
         String lowerHeader = header.toLowerCase();
-        return lowerHeader.equals("price") ||
-                lowerHeader.equals("salesaccount") ||
-                lowerHeader.equals("purchaseaccount");
+        return lowerHeader.equals("price")
+                || lowerHeader.equals("salesaccount")
+                || lowerHeader.equals("purchaseaccount");
     }
 
     private void updateProcessStatus(Input_CreateMultipleProductsIA request, String status, String message) {
