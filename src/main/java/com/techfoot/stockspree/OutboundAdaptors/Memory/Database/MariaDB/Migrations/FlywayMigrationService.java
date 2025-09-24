@@ -13,12 +13,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import com.techfoot.stockspree.OutboundAdaptors.Configurations.TechfootServicesConfig;
-import com.techfoot.stockspree.OutboundPort.RedisPorts.Q_GetAllWorkspaces.*;
+import com.techfoot.stockspree.OutboundPort.RedisPorts.Q_GetAllWorkspaces.Port_GetAllWorkspacesOP;
 import com.zaxxer.hikari.HikariDataSource;
 
 @Service
 public class FlywayMigrationService {
-   
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -27,11 +27,11 @@ public class FlywayMigrationService {
 
     private TechfootServicesConfig.DbService config;
 
-    public FlywayMigrationService(){
-        config = new TechfootServicesConfig().DbService();  
+    public FlywayMigrationService() {
+        config = new TechfootServicesConfig().DbService();
     }
 
-     @EventListener(ApplicationReadyEvent.class)
+    @EventListener(ApplicationReadyEvent.class)
     public void runFlywayMigrations() {
         List<Map<String, String>> workspaceList = getAllWorkspacesOutPort.getAllWorkspaces();
 
@@ -43,12 +43,12 @@ public class FlywayMigrationService {
         }
     }
 
-
-     public void runFlywayMigrationsForWorkspace(String workspace) {
+    public void runFlywayMigrationsForWorkspace(String workspace) {
         System.out.println("Running migrations for workspace: " + workspace);
         runMigrationForWorkspace(workspace);
     }
-     public void runMigrationForWorkspace(String workspace) {
+
+    public void runMigrationForWorkspace(String workspace) {
         try {
             String createDB = "CREATE DATABASE IF NOT EXISTS techfoot_stock_db_" + workspace + " DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;";
             jdbcTemplate.execute(createDB);
@@ -67,6 +67,7 @@ public class FlywayMigrationService {
             System.out.println("Failed to complete migration for workspace: " + workspace);
         }
     }
+
     private DataSource createWorkspaceDataSource(String workspace) {
         // Create a new DataSource for the specific workspace database
         String databaseUrl = config.getHostName() + "techfoot_stock_db_" + workspace;
@@ -85,4 +86,4 @@ public class FlywayMigrationService {
 
         return dataSource;
     }
-} 
+}

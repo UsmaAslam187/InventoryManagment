@@ -42,12 +42,12 @@ public class Adapter_GetAccountsOA_Prod implements Port_GetAccountsOP {
         HttpEntity<Request> entity = new HttpEntity<>(req, headers);
         String url = String.format("http://%s:%d/accspree/COA/get-accounts", service.getHostName(),
                 service.getPortNumber());
-
         Response response = new Response();
         try {
             ResponseEntity<String> apiResponse = restTemplate.postForEntity(url, entity, String.class);
             try {
                 response = objectMapper.readValue(apiResponse.getBody(), Response.class);
+                System.out.println("response: " + response);
             } catch (Exception jsonException) {
                 response = new Response(false, "Failed to parse API response: " + jsonException.getMessage(),
                         apiResponse.getStatusCodeValue(), null, apiResponse.getBody());

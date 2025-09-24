@@ -36,6 +36,7 @@ public class Adapter_CreateProductsOA implements Port_CreateProductsOP {
                         new ArrayList<>(Arrays.asList("Product input cannot be null")));
             }
             String query = queries.getInsertProductQuery(WorkspaceContext.getCurrentDatabase());
+            System.out.println(query);
             entityManager.createNativeQuery(query)
                     .setParameter("name", input.getName())
                     .setParameter("code", input.getCode())

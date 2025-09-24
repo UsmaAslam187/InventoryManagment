@@ -1,6 +1,8 @@
 package com.techfoot.stockspree.OutboundAdaptors.REST.Accounting.Q_GetAccounts.Accounting_Contracts;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
@@ -8,5 +10,5 @@ import lombok.*;
 public class Request {
     private String workspace;
     private String email;
-    private Integer accountId;
+    private Integer accountID;
 }

@@ -29,6 +29,7 @@ import com.techfoot.stockspree.OutboundPort.RPC.REST.AccountingPorts.Q_GetAccoun
 
 @Service
 public class Products {
+
     @Autowired
     private Port_CreateProductsOP port_CreateProductsOP;
 
@@ -51,6 +52,7 @@ public class Products {
                 if (product.getSalesAccount() != null) {
                     Output_GetAccountsOP accounts = port_GetAccountsOP
                             .getAccounts(new Input_GetAccountsOP(product.getSalesAccount()));
+                    System.out.println("accounts: " + accounts);
                     if (!accounts.getSuccess()) {
                         errors.add("Sales account not found");
                         overallSuccess = false;
@@ -100,7 +102,7 @@ public class Products {
                 page.setCsvExport(input.getPage().getCsvExport());
             }
             Output_GetAllProductsOP products = port_GetAllProductsOP
-                    .getAllProducts(new Input_GetAllProductsOP(page,input.getSearchedValue(),input.getNameFlag()));
+                    .getAllProducts(new Input_GetAllProductsOP(page, input.getSearchedValue(), input.getNameFlag()));
             if (products.getSuccess()) {
                 List<GetAllProductsOutput_IP.Product> productList = new ArrayList<>();
                 if (products.getProducts() != null) {

@@ -22,7 +22,7 @@ public class Queries {
                     + "%' or type like '%" + searchedValue + "%' or sales_account like '%" + searchedValue
                     + "%' or purchase_account like '%" + searchedValue + "%'";
         } else {
-            return "SELECT COUNT(*) as count FROM " + db + ".Product where code like '%" + searchedValue + "%'";
+            return "SELECT COUNT(*) as count FROM " + db + ".Product where code like '%" + searchedValue + "%' or name like '%" + searchedValue + "%'";
         }
     }
     
@@ -34,7 +34,7 @@ public class Queries {
                     + "%' or type like '%" + searchedValue + "%' or sales_account like '%" + searchedValue
                     + "%' or purchase_account like '%" + searchedValue + "%'";
         } else {
-            return "SELECT *FROM " + db + ".Product where code like '%" + searchedValue + "%'";
+            return "SELECT *FROM " + db + ".Product where code like '%" + searchedValue + "%' or name like '%" + searchedValue + "%'";
         }
     }
 

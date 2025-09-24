@@ -68,7 +68,7 @@ public class WorkspaceInterceptor implements HandlerInterceptor {
                         workspace = request.getHeader("X-Workspace");
                         if (workspace == null) {
                             // Use a default workspace for stockspree
-                            workspace = "default";
+                            workspace = "template";
                         }
                     }
 
