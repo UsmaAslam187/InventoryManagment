@@ -87,7 +87,8 @@ public class Adapter_CreateMultipleProductsIA {
                         product.getPurchaseAccount()))
                         .collect(Collectors.toList()));
                 CreateProductsOutput_IP outputIP = productHandler.createProducts(inputIP);
-                return new Output_CreateMultipleProductsIA(outputIP.getSuccess(), outputIP.getMessage(), 200, outputIP.getErrors(), null);
+                success = outputIP.getSuccess();
+                updateProcessStatus(input, success ? "Done" : "Fail", outputIP.getMessage());
             } catch (Exception e) {
                 errorMessage = e.getMessage();
                 errorMessage = errorMessage.replace(";", ",");
@@ -106,15 +107,7 @@ public class Adapter_CreateMultipleProductsIA {
             return new Output_CreateMultipleProductsIA(false, "Failed to process products: " + e.getMessage(), 400,
                     null, null);
         }
-
-        String message = success ? "All products created successfully" : "Some products failed to create.";
-        if (success) {
-            updateProcessStatus(input, "Done", message);
-        } else {
-            String concatenatedErrorMessages = String.join(" # ", errorMessages);
-            updateProcessStatus(input, "Fail", concatenatedErrorMessages);
-        }
-        return new Output_CreateMultipleProductsIA(success, message, success ? 200 : 207,
+        return new Output_CreateMultipleProductsIA(success, "All products created successfully", success ? 200 : 207,
                 errorMessages.isEmpty() ? null : errorMessages, null);
     }
 
@@ -193,6 +186,7 @@ public class Adapter_CreateMultipleProductsIA {
                 header.toLowerCase();
         };
     }
+
     private void updateProcessStatus(Input_CreateMultipleProductsIA request, String status, String message) {
         Request updateRequest = new Request();
         Request.ProcessDetail processDetail = new Request.ProcessDetail();

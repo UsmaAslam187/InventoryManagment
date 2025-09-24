@@ -53,7 +53,6 @@ public class Adapter_ScheduleProductsCreationOA_Prod implements Port_SchedulePro
 
     private Map<String, Object> prepareProcessData(Input_CreateMultipleProductsIA request) throws Exception {
         Input_CreateMultipleProductsIA.ProductData productsData = request.getData();
-        System.out.println("productsData: " + productsData);
         String resDate = productsData.getScheduleTime().getDate();
         String time = convertTo24HourFormat(productsData.getScheduleTime().getTime());
         long timeToStartInt = getTimeInUnixFormat(resDate, time);

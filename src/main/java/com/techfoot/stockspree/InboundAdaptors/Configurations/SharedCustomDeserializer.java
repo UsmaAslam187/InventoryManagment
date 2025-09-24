@@ -616,7 +616,6 @@ public class SharedCustomDeserializer {
             } catch (NumberFormatException e1) {
                 try {
                     Double.parseDouble(node.asText());
-                    System.out.println("node.asText(): " + node.asText());
                     return "string (numeric)";
                 } catch (NumberFormatException e2) {
                     return "string";

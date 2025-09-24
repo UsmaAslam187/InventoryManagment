@@ -43,7 +43,6 @@ public class Adapter_CreateSingleProductIA {
                 }
 
                 Input_CreateSingleProductIA input = deserializationResult.getResult();
-                System.out.println("input " + input);
                 CreateProductsInput_IP inputIP = new CreateProductsInput_IP();
                 inputIP.setProducts(input.getProducts().stream()
                                 .map(product -> new CreateProductsInput_IP.Product(product.getName(), product.getCode(),

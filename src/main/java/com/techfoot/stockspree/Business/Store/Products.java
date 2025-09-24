@@ -49,10 +49,20 @@ public class Products {
             boolean overallSuccess = true;
 
             for (CreateProductsInput_IP.Product product : input.getProducts()) {
+                // Check if product already exists by code or name
+                Input_GetSingleProductOP checkInput = new Input_GetSingleProductOP();
+                checkInput.setCode(product.getCode());
+                checkInput.setName(product.getName());
+                Output_GetSingleProductOP existingProduct = port_GetSingleProductOP.getSingleProduct(checkInput);
+                if (existingProduct.getSuccess()) {
+                    errors.add("Product with code '" + product.getCode() + "' or name '" + product.getName()
+                            + "' already exists");
+                    overallSuccess = false;
+                    continue;
+                }
                 if (product.getSalesAccount() != null) {
                     Output_GetAccountsOP accounts = port_GetAccountsOP
                             .getAccounts(new Input_GetAccountsOP(product.getSalesAccount()));
-                    System.out.println("accounts: " + accounts);
                     if (!accounts.getSuccess()) {
                         errors.add("Sales account not found");
                         overallSuccess = false;
@@ -91,7 +101,6 @@ public class Products {
     public GetAllProductsOutput_IP getAllProducts(GetAllProductsInput_IP input) {
         try {
             Input_GetAllProductsOP.Page page = null;
-            System.out.println("input.getPage(): " + input.getPage());
             if (input.getPage() != null) {
                 page = new Input_GetAllProductsOP.Page();
                 page.setSize(input.getPage().getSize());

@@ -18,7 +18,6 @@ public class CustomHttpRequestWrapper extends HttpServletRequestWrapper {
 
     public CustomHttpRequestWrapper(HttpServletRequest request) throws IOException {
         super(request);
-        System.out.println("Request: " + request);
         StringBuilder stringBuilder = new StringBuilder();
         InputStream inputStream = request.getInputStream();
         if (inputStream != null) {
@@ -30,7 +29,7 @@ public class CustomHttpRequestWrapper extends HttpServletRequestWrapper {
                 stringBuilder.append(buffer, 0, bytesRead);
             }
         }
-        
+
         this.body = stringBuilder.toString();
     }
 

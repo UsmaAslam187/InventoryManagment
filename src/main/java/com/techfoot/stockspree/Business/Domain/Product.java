@@ -172,7 +172,7 @@ public class Product extends DomainAggregate {
     public List<Error_DomainEntity> validate() {
         Set<ConstraintViolation<Product>> violations = validator.validate(this);
         if (!violations.isEmpty()) {
-            System.out.println(violations);
+
             List<Error_DomainEntity> violationMessages = violations.stream()
                     .map(message -> new Error_DomainEntity(false, message.getMessage()))
                     .collect(Collectors.toList());
