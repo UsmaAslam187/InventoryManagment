@@ -1,0 +1,19 @@
+{
+    "title": "Null Tax Field - Valid Case",
+    "products": [
+        {
+            "name": "Product with Null Tax",
+            "type": "Consumable Product",
+            "price": 100,
+            "tax": null,
+            "purchaseAccount": 10,
+            "salesAccount": 1,
+            "code": "NULLTAX123"
+        }
+    ],
+    "response": {
+        "success": true,
+        "message": "Product created successfully",
+        "errors": null
+    }
+}

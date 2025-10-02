@@ -1,0 +1,19 @@
+{
+    "title": "Maximum Length Tax - Valid Case",
+    "products": [
+        {
+            "name": "Product with Max Tax",
+            "type": "Consumable Product",
+            "price": 100,
+            "tax": "This is exactly one hundred characters long tax description that should pass validation and be created successfully in the system",
+            "purchaseAccount": 10,
+            "salesAccount": 1,
+            "code": "MAXTAX123"
+        }
+    ],
+    "response": {
+        "success": true,
+        "message": "Product created successfully",
+        "errors": null
+    }
+}

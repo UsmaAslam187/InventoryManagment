@@ -1,0 +1,9 @@
+{
+    "title": "Empty Products List - Validation Error",
+    "products": [],
+    "response": {
+        "success": false,
+        "message": "Error",
+        "errors": ["Products list cannot be empty"]
+    }
+}

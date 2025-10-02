@@ -1,0 +1,18 @@
+{
+    "title": "Maximum Length Code - Valid Case",
+    "products": [
+        {
+            "name": "Product with Max Code",
+            "type": "Service Product",
+            "price": 100,
+            "purchaseAccount": 10,
+            "salesAccount": 1,
+            "code": "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+        }
+    ],
+    "response": {
+        "success": true,
+        "message": "Product created successfully",
+        "errors": null
+    }
+}

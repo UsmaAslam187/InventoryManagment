@@ -1,0 +1,18 @@
+{
+    "title": "Product Code with Special Characters - Validation Error",
+    "products": [
+        {
+            "name": "Valid Product Name",
+            "type": "Consumable Product",
+            "price": 100,
+            "purchaseAccount": 10,
+            "salesAccount": 1,
+            "code": "ABC-123@#$"
+        }
+    ],
+    "response": {
+        "success": false,
+        "message": "Error",
+        "errors": ["Code must be alphanumeric"]
+    }
+}

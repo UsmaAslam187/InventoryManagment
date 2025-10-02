@@ -12,10 +12,10 @@ import lombok.ToString;
 
 @Entity
 @Table(name = "product")
-@Getter
+@Getter 
 @Setter
 @ToString
-public class Product_Table {
+public class Product_Table extends IdentifyingTable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +30,7 @@ public class Product_Table {
 
     @Column(name = "price")
     private Double price;
-
+    
     @Column(name = "tax", length = 100)
     private String tax;
 

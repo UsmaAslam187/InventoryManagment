@@ -1,0 +1,18 @@
+{
+    "title": "Maximum Length Name - Valid Case",
+    "products": [
+        {
+            "name": "This is exactly one hundred characters long product name that should pass validation and be created successfully in the system",
+            "type": "Consumable Product",
+            "price": 100,
+            "purchaseAccount": 10,
+            "salesAccount": 1,
+            "code": "MAXNAME123"
+        }
+    ],
+    "response": {
+        "success": true,
+        "message": "Product created successfully",
+        "errors": null
+    }
+}

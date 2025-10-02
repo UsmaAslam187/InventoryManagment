@@ -1,0 +1,25 @@
+{
+    "title": "Multiple Validation Errors",
+    "products": [
+        {
+            "name": "",
+            "type": "Invalid Type",
+            "price": -100,
+            "purchaseAccount": -10,
+            "salesAccount": -5,
+            "code": "ABC@#$"
+        }
+    ],
+    "response": {
+        "success": false,
+        "message": "Error",
+        "errors": [
+            "Name is required",
+            "Type must be either 'Consumable Product' or 'Service Product'",
+            "Price must be greater than or equal to 0",
+            "Purchase account must be greater than or equal to 0",
+            "Sales account must be greater than or equal to 0",
+            "Code must be alphanumeric"
+        ]
+    }
+}

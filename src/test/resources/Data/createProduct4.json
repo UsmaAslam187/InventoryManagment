@@ -1,0 +1,18 @@
+{
+    "title": "Product Name Too Long - Validation Error",
+    "products": [
+        {
+            "name": "This is a very long product name that exceeds the maximum allowed length of one hundred characters and should trigger a validation error when processed by the system",
+            "type": "Consumable Product",
+            "price": 100,
+            "purchaseAccount": 10,
+            "salesAccount": 1,
+            "code": "1234567890"
+        }
+    ],
+    "response": {
+        "success": false,
+        "message": "Error",
+        "errors": ["Name must be between 1 and 100 characters"]
+    }
+}

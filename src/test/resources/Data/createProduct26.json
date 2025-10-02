@@ -1,0 +1,18 @@
+{
+    "title": "Service Product Type - Valid Case",
+    "products": [
+        {
+            "name": "Service Product",
+            "type": "Service Product",
+            "price": 150,
+            "purchaseAccount": 15,
+            "salesAccount": 3,
+            "code": "SERVICE123"
+        }
+    ],
+    "response": {
+        "success": true,
+        "message": "Product created successfully",
+        "errors": null
+    }
+}

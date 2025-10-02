@@ -26,19 +26,19 @@ public class DeserializerConfig {
     public ObjectMapper objectMapper() {
         // Build ObjectMapper using the customized Jackson2ObjectMapperBuilder
         ObjectMapper mapper = jackson2ObjectMapperBuilder.createXmlMapper(false).build();
-        
+
         // Configure to be lenient with unknown properties
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        
+
         // Configure to handle missing properties gracefully
         mapper.configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, false);
-        
+
         // Configure to handle null values gracefully
         mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
-        
+
         // Configure to handle empty strings as null for primitives
         mapper.configure(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS, false);
-        
+
         return mapper;
     }
 
@@ -49,4 +49,4 @@ public class DeserializerConfig {
     public SharedCustomDeserializer sharedCustomDeserializer() {
         return new SharedCustomDeserializer();
     }
-} 
+}

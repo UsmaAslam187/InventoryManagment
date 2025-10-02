@@ -1,0 +1,18 @@
+{
+    "title": "Null Sales Account - Valid Case",
+    "products": [
+        {
+            "name": "Product with Null Sales Account",
+            "type": "Consumable Product",
+            "price": 100,
+            "purchaseAccount": 10,
+            "salesAccount": null,
+            "code": "NULLSALES123"
+        }
+    ],
+    "response": {
+        "success": true,
+        "message": "Product created successfully",
+        "errors": null
+    }
+}

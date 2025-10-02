@@ -1,0 +1,9 @@
+{
+    "title": "Null Products List - Validation Error",
+    "products": null,
+    "response": {
+        "success": false,
+        "message": "Error",
+        "errors": ["Products list cannot be null"]
+    }
+}

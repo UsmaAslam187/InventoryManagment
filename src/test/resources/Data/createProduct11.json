@@ -1,0 +1,18 @@
+{
+    "title": "Invalid Product Type - Validation Error",
+    "products": [
+        {
+            "name": "Valid Product Name",
+            "type": "Invalid Product Type",
+            "price": 100,
+            "purchaseAccount": 10,
+            "salesAccount": 1,
+            "code": "1234567890"
+        }
+    ],
+    "response": {
+        "success": false,
+        "message": "Error",
+        "errors": ["Type must be either 'Consumable Product' or 'Service Product'"]
+    }
+}

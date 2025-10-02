@@ -1,0 +1,18 @@
+{
+    "title": "Null Product Code - Validation Error",
+    "products": [
+        {
+            "name": "Valid Product Name",
+            "type": "Consumable Product",
+            "price": 100,
+            "purchaseAccount": 10,
+            "salesAccount": 1,
+            "code": null
+        }
+    ],
+    "response": {
+        "success": false,
+        "message": "Error",
+        "errors": ["Code is required"]
+    }
+}

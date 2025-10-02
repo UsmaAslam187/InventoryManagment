@@ -14,8 +14,8 @@ public class Adaptor_CreateDbIA {
     @Autowired
     private C_CreateDatabaseHandler createDatabaseHandler;
 
-       @PostMapping("stockspree/system/create-db")
-      public ResponseEntity<Output_CreateDbIA> createTenantDatabase(@RequestBody Input_CreateDbIA tenantRequest) {
+    @PostMapping("stockspree/system/create-db")
+    public ResponseEntity<Output_CreateDbIA> createTenantDatabase(@RequestBody Input_CreateDbIA tenantRequest) {
 
         Output_CreateDbIA response = createDatabaseHandler.createDb(tenantRequest);
         if (response.getSuccess()) {

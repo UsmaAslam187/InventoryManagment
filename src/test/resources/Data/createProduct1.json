@@ -1,0 +1,18 @@
+{
+    "title": "Product Created Successfully",
+    "products": [
+        {
+            "name": "Product 1",
+            "type": "Consumable Product",
+            "price": 100,
+            "purchaseAccount": 10,
+            "salesAccount": 1,
+            "code": "1234567890"
+        }
+    ],
+    "response": {
+        "success": true,
+        "message": "Product created successfully",
+        "errors": null
+    }
+}

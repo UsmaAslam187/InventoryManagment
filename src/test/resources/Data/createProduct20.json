@@ -1,0 +1,26 @@
+{
+    "title": "Duplicate Product Codes - Validation Error",
+    "products": [
+        {
+            "name": "Product 1",
+            "type": "Consumable Product",
+            "price": 100,
+            "purchaseAccount": 10,
+            "salesAccount": 1,
+            "code": "DUPLICATE123"
+        },
+        {
+            "name": "Product 2",
+            "type": "Service Product",
+            "price": 200,
+            "purchaseAccount": 20,
+            "salesAccount": 2,
+            "code": "DUPLICATE123"
+        }
+    ],
+    "response": {
+        "success": false,
+        "message": "Error",
+        "errors": ["Duplicate product codes found: DUPLICATE123"]
+    }
+}

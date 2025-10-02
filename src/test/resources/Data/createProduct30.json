@@ -1,0 +1,18 @@
+{
+    "title": "Very Large Price Value - Valid Case",
+    "products": [
+        {
+            "name": "Expensive Product",
+            "type": "Service Product",
+            "price": 999999999.99,
+            "purchaseAccount": 10,
+            "salesAccount": 1,
+            "code": "EXPENSIVE123"
+        }
+    ],
+    "response": {
+        "success": true,
+        "message": "Product created successfully",
+        "errors": null
+    }
+}

@@ -1,0 +1,18 @@
+{
+    "title": "Zero Sales and Purchase Accounts - Valid Case",
+    "products": [
+        {
+            "name": "Product with Zero Accounts",
+            "type": "Service Product",
+            "price": 50,
+            "purchaseAccount": 0,
+            "salesAccount": 0,
+            "code": "ZERO123"
+        }
+    ],
+    "response": {
+        "success": true,
+        "message": "Product created successfully",
+        "errors": null
+    }
+}

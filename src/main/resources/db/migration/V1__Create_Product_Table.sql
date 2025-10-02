@@ -7,5 +7,10 @@ CREATE TABLE IF NOT EXISTS Product (
     tax VARCHAR(100),
     type VARCHAR(100) NOT NULL,
     sales_account INT,
-    purchase_account INT
+    purchase_account INT,
+    aggregateVersion INT,
+    createdAt VARCHAR(255),
+    createdBy VARCHAR(255),
+    modifiedAt VARCHAR(255),
+    modifiedBy VARCHAR(255)
 );
